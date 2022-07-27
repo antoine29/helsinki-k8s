@@ -1,4 +1,4 @@
-module examples/temporised-string
+module temporisedRandomString
 
 go 1.18
 
