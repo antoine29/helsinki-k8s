@@ -9,34 +9,28 @@ k3d version
 k3d cluster create mycluster
 k3d cluster delete mycluster
 
-// cluster with two agents/nodes    
-k3d cluster create -a 2
 k3d kubeconfig get k3s-default
 kubectl config use-context k3d-k3s-default
-k3d cluster delete k3s-default
-  
+
+// cluster with two agents/nodes    
+k3d cluster create -a 2
+
 k3d cluster start mycluster
 k3d cluster list
 k3d cluster stop mycluster
 
-// k3d local registry
-k3d cluster create mycluster -a 2 --registry-create mycluster-registry
 k3d registry list
-docker tag temporised-string mycluster-registry:34447/temporised-string
-docker push mycluster-registry:34447/temporised-string
-kubectl create deployment temporiser --image=mycluster-registry:34447/temporised-string
-kubectl delete deployment temporiser
-
-
-
+k3d registry delete k3d-myregistry.localhost
 
 
 
 kubectl get node
 kubectl get nodes
+
 kubectl config use-context k3d-k3s-default
+
 kubectl cluster-info
-kubectl create deployment hashgenerator-dep --image=jakousa/dwk-app1
+
 kubectl get
 kubectl get deployments
 kubectl explain hashgenerator-dep
