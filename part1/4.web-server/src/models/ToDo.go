@@ -1,8 +1,12 @@
 package models
 
 type ToDo struct {
-    Id string
-	Title string
-	Done bool
+	Id      string
+	Content string
+	IsDone  bool
 }
 
+type RawToDo struct {
+	Content string
+	IsDone  bool
+}
