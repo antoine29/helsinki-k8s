@@ -10,15 +10,6 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @Summary Check API health
-// @Schemes http
-// @Description Check API health
-// @Produce json
-// @Router /health [get]
-func healthCheckController(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, gin.H{"status": "Healty"})
-}
-
 func setupSwagger() gin.HandlerFunc {
 	docs.SwaggerInfo.Title = "ToDo API"
 	docs.SwaggerInfo.Description = "A GO API REST server to manage ToDo's"
@@ -30,6 +21,14 @@ func setupSwagger() gin.HandlerFunc {
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
+	/* root := r.Group("/")
+	{
+		// root.GET("/*any", setupSwagger())
+		root.GET("/swagger/*any", setupSwagger())
+	} */
+
+	r.GET("/swagger/*any", setupSwagger())
+
 	api := r.Group("/api")
 	{
 		api.GET("/todos", controllers.GetTodos)
@@ -38,9 +37,12 @@ func SetupRouter() *gin.Engine {
 		api.PATCH("/todos/:id", controllers.UpdateTodo)
 		api.DELETE("/todos/:id", controllers.DeleteTodo)
 
-		api.GET("/health", healthCheckController)
+		api.GET("/health", controllers.HealthCheck)
 	}
 
-	r.GET("/swagger/*any", setupSwagger())
+	r.GET("/*any", func(c *gin.Context) {
+		c.IndentedJSON(http.StatusOK, gin.H{"status": "Healty"})
+	})
+
 	return r
 }
