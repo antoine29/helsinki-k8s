@@ -7,15 +7,12 @@ import (
 
 func current(w http.ResponseWriter, req *http.Request) {
 	currentStatus := GetStatus()
-	response := fmt.Sprintf("%s", currentStatus)
-	fmt.Fprintln(w, response)
-
+	fmt.Fprintln(w, currentStatus)
 }
 
-func Server() {
+func Server(port string) {
 	http.HandleFunc("/current", current)
 
-	port := 8090
-	fmt.Printf("Listening on: %d \n", port)
-	http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	fmt.Printf("Listening on: %s \n", port)
+	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 }

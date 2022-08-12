@@ -21,12 +21,12 @@ func generateRandomString(length int) string {
 	return randomString
 }
 
-func PrintRandomString(length int, msInterval int64) {
-	stringInterval := fmt.Sprintf("%ds", msInterval)
+func PrintRandomString(strLength int, secsInterval int) {
+	stringInterval := fmt.Sprintf("%ds", secsInterval)
 	tickerDuration, _ := time.ParseDuration(stringInterval)
 	ticker := time.NewTicker(tickerDuration)
 	for tick := range ticker.C {
-		randomString := generateRandomString(length)
+		randomString := generateRandomString(strLength)
 		status := fmt.Sprintf("%s %s", tick.String(), randomString)
 		SetStatus(status)
 		fmt.Println(tick, status)

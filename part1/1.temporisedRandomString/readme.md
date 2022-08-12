@@ -1,5 +1,12 @@
 # Running the temporised random string project as k3d deployment with a local k3d registry
 
+required program parameters:
+- -secsInterval
+- -strLength
+- -serverPort
+
+`GET: host:{serverPort}/current` returns the current stamp/random str
+
 1. Build and test the project docker image
 ```shell
 $ docker build . -t temporised-random-string

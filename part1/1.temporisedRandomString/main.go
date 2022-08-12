@@ -6,27 +6,31 @@ import (
 	"strconv"
 )
 
-func main() {
-	/*
-		programParams := os.Args[1:]
-		for i, param := range programParams {
-			fmt.Println(i, param)
-			fmt.Println("type: ", fmt.Sprintf("%T", param))
-		}
-	*/
-
-	if len(os.Args) == 1 || len(os.Args) > 2 {
-		fmt.Println("Error: You have to pass a ms integer")
-		os.Exit(3)
-	}
-
-	intervalParam := os.Args[1]
-	intInterval, parseError := strconv.ParseInt(intervalParam, 0, 64)
+func parseStrToInt(str string) int {
+	intVal, parseError := strconv.ParseInt(str, 0, 0)
 	if parseError != nil {
-		fmt.Println("Error: Cannot parse", intervalParam, "to int")
+		fmt.Printf("Error: Cannot parse '%s' to int", str)
 		os.Exit(3)
 	}
 
-	go Server()
-	PrintRandomString(7, intInterval)
+	return int(intVal)
+}
+
+func main() {
+	paramsDict := BuildProgramParamsDict(os.Args[1:])
+
+	for _, expectedParam := range ExpectedParams {
+		_, exists := paramsDict[expectedParam]
+		if !exists {
+			fmt.Printf("Error: Expected '%s' parameter. \n", expectedParam)
+			os.Exit(3)
+		}
+	}
+
+	secsInterval := parseStrToInt(paramsDict["secsInterval"])
+	randomStrLength := parseStrToInt(paramsDict["strLength"])
+	serverPort := paramsDict["serverPort"]
+
+	go Server(serverPort)
+	PrintRandomString(randomStrLength, secsInterval)
 }
