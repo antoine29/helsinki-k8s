@@ -27,12 +27,6 @@ func main() {
 		os.Exit(3)
 	}
 
-	stringInterval := fmt.Sprintf("%ds", intInterval)
-
-	tickerDuration, _ := time.ParseDuration(stringInterval)
-	ticker := time.NewTicker(tickerDuration)
-	for tick := range ticker.C {
-		randomString := generateRandomString(5)
-		fmt.Println(tick, randomString)
-	}
+	go Server()
+	PrintRandomString(7, intInterval)
 }
