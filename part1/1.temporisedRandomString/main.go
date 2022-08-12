@@ -8,17 +8,15 @@ import (
 	"time"
 )
 
-func generateRandomString() string {
+func generateRandomString(length int) string {
 	seed := time.Now().UnixNano()
 	randomSource := rand.NewSource(seed)
 	generator := rand.New(randomSource)
-	randomLength := generator.Intn(10) + 1
 	randomString := ""
-	for i := 0; i < randomLength; i++ {
+	for i := 0; i < length; i++ {
 		// lowercase letters: 97 - 122 => 0+97 = 97, 25+97 = 122
 		randomLowerCaseAsciInt := generator.Intn(26) + 97
 		randomLowerCaseAsci := string(rune(randomLowerCaseAsciInt))
-		// fmt.Println("randomLowerCaseAsci", randomLowerCaseAsci)
 		randomString += randomLowerCaseAsci
 	}
 
@@ -46,13 +44,11 @@ func main() {
 	}
 
 	stringInterval := fmt.Sprintf("%ds", intInterval)
-	randomString := generateRandomString()
-
-	fmt.Println("random string:", randomString, "interval to print: ", stringInterval)
 
 	tickerDuration, _ := time.ParseDuration(stringInterval)
 	ticker := time.NewTicker(tickerDuration)
 	for tick := range ticker.C {
-		fmt.Println("Tick: ", tick, randomString)
+		randomString := generateRandomString(5)
+		fmt.Println(tick, randomString)
 	}
 }
