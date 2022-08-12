@@ -3,8 +3,8 @@ package router
 import (
 	"antoine29/go/web-server/docs"
 	controllers "antoine29/go/web-server/src/controllers"
-	"net/http"
 
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -21,11 +21,8 @@ func setupSwagger() gin.HandlerFunc {
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
-	/* root := r.Group("/")
-	{
-		// root.GET("/*any", setupSwagger())
-		root.GET("/swagger/*any", setupSwagger())
-	} */
+
+	r.Use(static.Serve("/", static.LocalFile("./todo-fe/dist", true)))
 
 	r.GET("/swagger/*any", setupSwagger())
 
@@ -39,10 +36,6 @@ func SetupRouter() *gin.Engine {
 
 		api.GET("/health", controllers.HealthCheck)
 	}
-
-	r.GET("/*any", func(c *gin.Context) {
-		c.IndentedJSON(http.StatusOK, gin.H{"status": "Healty"})
-	})
 
 	return r
 }
