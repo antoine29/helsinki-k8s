@@ -37,26 +37,3 @@ $ kubectl apply -f service.yml
 ```shell
 $ curl localhost:8082/api/health
 ```
-
-
-
-
-
-
-
-Get the deployment pod
-```shell
-$ kubectl get pods
-NAME                          READY   STATUS    RESTARTS   AGE
-web-server-64cd79d554-f7tsl   1/1     Running   0          8m22s
-```
-
-Pod port forwarding
-```shell
-$ kubectl port-forward web-server-64cd79d554-f7tsl 8090:8090
-```
-
-Check going to localhost:8090/swagger/indexhtml or by curl
-```shell
-$ curl localhost:8090/api/health
-```
