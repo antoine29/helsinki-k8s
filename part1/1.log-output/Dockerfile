@@ -5,13 +5,12 @@ WORKDIR /app
 COPY . .
 RUN go build -o exe
 
-FROM gcr.io/distroless/base-debian10
+FROM alpine
 WORKDIR /app
 COPY --from=builder /app/exe /app
-EXPOSE 8080
-USER nonroot:nonroot
-
 ENTRYPOINT ["/app/exe"]
+
+
 #CMD [""]
 #CMD ["5"]
 #CMD: is the command being executed by the container on startup. You can override this on 'docker run'

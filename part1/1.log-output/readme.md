@@ -9,13 +9,9 @@ required program parameters:
 
 1. Build and test the project docker image
 ```shell
-$ docker build . -t temporised-random-string
-$ docker run temporised-random-string 3
-random string: usgwbdo interval to print:  3s
-Tick:  2022-07-27 01:37:36.165060436 +0000 UTC m=+3.001884546 usgwbdo
-Tick:  2022-07-27 01:37:39.16509235 +0000 UTC m=+6.001916430 usgwbdo
-Tick:  2022-07-27 01:37:42.16504319 +0000 UTC m=+9.001867236 usgwbdo
-...
+$ docker build . -t log-output
+$ docker run -it --rm --name log-output -p 8090:8090 log-output -serverPort 8090 -strLength 5 -secsInter
+val 5
 ```
 
 2. Create a local k3d registry on port 12345
@@ -30,12 +26,12 @@ $ k3d cluster create mycluster -a 2 --registry-use k3d-myregistry.localhost:1234
 
 4. Tag and push the created docker images
 ```shell
-$ docker tag temporised-random-string k3d-myregistry.localhost:12345/temporised-random-string
-$ docker push k3d-myregistry.localhost:12345/temporised-random-string
+$ docker tag log-output k3d-myregistry.localhost:12345/log-output
+$ docker push k3d-myregistry.localhost:12345/log-output
 ```
 5. Create the deployment
 ```shell
-$ kubectl create deployment temporiser --image=k3d-myregistry.localhost:12345/temporised-random-string -- /app/exe 5
+$ kubectl create deployment log-output --image=k3d-myregistry.localhost:12345/log-output -- /app/exe 5
 ```
 
 ToDo: we're passing the '/app/exe 5' param to override the entire image entrypoint and cmd, in the CLI mode of `create deployment there is no way to pass a cmd without a entrypoint`
