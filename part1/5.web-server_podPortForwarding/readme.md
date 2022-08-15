@@ -30,8 +30,3 @@ Check going to localhost:8090/swagger/indexhtml or by curl
 ```shell
 $ curl localhost:8090/api/health
 ```
-
-
-
-
-
