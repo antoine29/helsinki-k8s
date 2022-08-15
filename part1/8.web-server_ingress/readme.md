@@ -1,4 +1,4 @@
-# Running the wev-server application (4.web-server)
+# Running the web-server application (4.web-server)
 
 ## 1. Delete the previous deployments
 Check the deployment names with `$ kubectl get deployments` then delete them
