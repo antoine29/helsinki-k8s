@@ -22,11 +22,3 @@ $ kubectl apply -f ingress.yml
 ```shell
 $ curl localhost:8081/api/health
 ```
-
-
-
-
-
-
-
-
