@@ -1,4 +1,4 @@
-package main
+package inMemo
 
 var status = "initial"
 
