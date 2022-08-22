@@ -34,12 +34,33 @@ func ParseStrToInt(str string) int {
 	return int(intVal)
 }
 
-var ExpectedParams = []string{"serverPort", "strLength", "secsInterval"}
+var WriterExpectedParams = []string{
+	"strLength",
+	"secsInterval",
+}
+
+var ReaderExpectedParams = []string{
+	"serverPort",
+}
+
+var ProgramModes = []string{
+	"writer",
+	"reader",
+}
+
+var programParams = append(WriterExpectedParams, append(ReaderExpectedParams, ProgramModes...)...)
+
+var TRUE_STR string = "true"
 
 func processDashSplitedParam(dashSplitedParam string) *string {
 	spaceSplitedParams := strings.Split(strings.TrimSpace(dashSplitedParam), " ")
 	if len(spaceSplitedParams) == 2 {
 		return &spaceSplitedParams[1]
+	}
+
+	if len(spaceSplitedParams) > 0 &&
+		(spaceSplitedParams[0] == "writer" || spaceSplitedParams[0] == "reader") {
+		return &TRUE_STR
 	}
 
 	return nil
@@ -51,7 +72,7 @@ func BuildProgramParamsDict(params []string) map[string]string {
 
 	paramDict := make(map[string]string)
 
-	for _, expectedParam := range ExpectedParams {
+	for _, expectedParam := range programParams {
 		for _, dashSplitedParam := range dashSplitedParams {
 			_, present := paramDict[expectedParam]
 			if strings.Contains(dashSplitedParam, expectedParam) && !present {
@@ -66,12 +87,17 @@ func BuildProgramParamsDict(params []string) map[string]string {
 	return paramDict
 }
 
-func CheckPassedParams(paramsDict map[string]string) {
-	for _, expectedParam := range ExpectedParams {
+func CheckMandatoryParams(paramsDict map[string]string, expectedParams []string) {
+	for _, expectedParam := range expectedParams {
 		_, exists := paramsDict[expectedParam]
 		if !exists {
 			fmt.Printf("Error: Expected '%s' parameter. \n", expectedParam)
 			os.Exit(3)
 		}
 	}
+}
+
+func ParamIsPassed(param string, paramsDict map[string]string) bool {
+	_, isPresent := paramsDict[param]
+	return isPresent
 }
