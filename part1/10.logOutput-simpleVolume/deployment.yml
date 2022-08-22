@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-output
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-output
+  template:
+    metadata:
+      labels:
+        app: log-output
+    spec:
+      volumes:
+        - name: simple-volume
+          emptyDir: {}
+      containers:
+        - name: log-output-writer
+          image: k3d-myregistry.localhost:12345/log-output:001
+          args: ["-writer", "-strLength 5", "-secsInterval 5"]
+          volumeMounts:
+          - name: simple-volume
+            mountPath: /tmp
+        - name: log-output-reader
+          image: k3d-myregistry.localhost:12345/log-output:001
+          args: ["-reader", "-serverPort 8090"]
+          volumeMounts:
+          - name: simple-volume
+            mountPath: /tmp
