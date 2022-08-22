@@ -9,11 +9,13 @@ import (
 
 func inMemoStatusEndpoint(w http.ResponseWriter, req *http.Request) {
 	currentStatus := statusMemoHandler.GetStatus()
+	fmt.Printf("/status/memory:\n%s\n", currentStatus)
 	fmt.Fprintln(w, currentStatus)
 }
 
 func inFileStatusEndpoint(w http.ResponseWriter, req *http.Request) {
 	currentStatus := statusFileHandler.GetStatus()
+	fmt.Printf("/status/file:\n%s\n", currentStatus)
 	fmt.Fprintln(w, currentStatus)
 }
 

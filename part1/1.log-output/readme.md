@@ -1,17 +1,31 @@
 # Running the temporised random string project as k3d deployment with a local k3d registry
+The program can run in two modes:
 
-required program parameters:
-- -secsInterval
-- -strLength
-- -serverPort
+- reader: exposes a port to query the status\
+```shell
+$ go run . -serverPort 8090 -reader
+```
 
-`GET: host:{serverPort}/current` returns the current stamp/random str
+testing in other shell
+```shell
+$ curl localhost:8080/status/file (to check the status stored on file)
+$ curl localhost:8080/status/memory (to check the status stored on memory)
+```
+
+- writer: to write the status (time stamp+randomStr) to the file and to memory
+```shell
+$ go run . -strLength 5 -secsInterval 5 -writer
+```
+
+- aditionally `mode` param can be omited to run in writer/reader mode
+```shell
+$ go run . -serverPort 8090 -strLength 5 -secsInterval 5
+```
 
 1. Build and test the project docker image
 ```shell
 $ docker build . -t log-output
-$ docker run -it --rm --name log-output -p 8090:8090 log-output -serverPort 8090 -strLength 5 -secsInter
-val 5
+$ docker run -it --rm --name log-output -p 8090:8090 log-output -serverPort 8090 -strLength 5 -secsInterval 5
 ```
 
 2. Create a local k3d registry on port 12345

@@ -1,6 +1,7 @@
 package inFile
 
 import (
+	"crypto/md5"
 	"fmt"
 	"os"
 )
@@ -14,21 +15,26 @@ func handleError(e error) {
 }
 
 func SetStatus(_status string) {
-	f, e0 := os.Create(filePath)
+	file, e0 := os.Create(filePath)
 	handleError(e0)
 
-	_, e1 := f.WriteString(_status)
+	_, e1 := file.WriteString(_status)
 	handleError(e1)
 
-	f.Sync()
-	f.Close()
+	file.Sync()
+	file.Close()
 }
 
 func GetStatus() string {
-	dat, err := os.ReadFile(filePath)
+	data, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Sprintf("Error reading from file: %s \n%s", filePath, err)
 	}
 
-	return string(dat)
+	hash := hashFile(data)
+	return fmt.Sprintf("MD5 file hash: %s \n%s", hash, string(data))
+}
+
+func hashFile(data []byte) string {
+	return fmt.Sprintf("%x", md5.Sum(data))
 }
