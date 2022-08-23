@@ -2,7 +2,7 @@ package router
 
 import (
 	"antoine29/go/web-server/docs"
-	controllers "antoine29/go/web-server/src/controllers"
+	"antoine29/go/web-server/src/controllers"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
@@ -24,6 +24,7 @@ func SetupRouter() *gin.Engine {
 
 	r.Use(static.Serve("/", static.LocalFile("./todo-fe/dist", true)))
 
+	r.GET("/image/:name", controllers.GetImage)
 	r.GET("/swagger/*any", setupSwagger())
 
 	api := r.Group("/api")
