@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: persistent-vol
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: persistent-vol
+  template:
+    metadata:
+      labels:
+        app: persistent-vol
+    spec:
+      volumes:
+        - name: shared-image
+          persistentVolumeClaim:
+            claimName: image-claim
+      containers:
+        - name: ping-pong
+          image: k3d-myregistry.localhost:12345/ping-pong:002
+          env:
+          - name: GO_PORT
+            value: "8080"
+          volumeMounts:
+          - name: shared-image
+            mountPath: /tmp
+        - name: log-output-reader
+          image: k3d-myregistry.localhost:12345/log-output:001
+          args: ["-reader", "-serverPort 8090"]
+          volumeMounts:
+          - name: shared-image
+            mountPath: /tmp
