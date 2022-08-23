@@ -1,7 +1,7 @@
 package main
 
 import (
-	router "antoine29/go/web-server/src/router"
+	"antoine29/go/web-server/src/router"
 	"fmt"
 	"os"
 )
