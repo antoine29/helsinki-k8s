@@ -2,8 +2,8 @@
 
 ## 1. Running as a docker container
 ```shell
-$ docker build . -t web-server
-$ docker run -it --rm -e "GO_PORT=80" web-server
+$ docker build . -t web-server --build-arg VITE_API_URL=http://localhost:8080
+$ docker run -it --rm -e "GO_PORT=8080" -p 8080:8080 web-server
 ```
 
 ## 2. Running as a K3D deployment

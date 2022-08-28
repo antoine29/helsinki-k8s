@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM node:16.14.0-alpine as fe-builder 
+ARG VITE_API_URL=http://localhost:8080
 WORKDIR /app
 COPY ./todo-fe .
 RUN yarn install && yarn run build
