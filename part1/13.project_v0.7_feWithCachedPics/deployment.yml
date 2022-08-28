@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: project
+  template:
+    metadata:
+      labels:
+        app: project
+    spec:
+      volumes:
+        - name: images-volume
+          persistentVolumeClaim:
+            claimName: volume-claim
+      containers:
+        - name: project
+          image: k3d-myregistry.localhost:12345/project
+          env:
+          - name: GO_PORT
+            value: "8080"
+          - name: GIN_MODE
+            value: "release"
+          volumeMounts:
+          - name: images-volume
+            mountPath: /tmp
+        
