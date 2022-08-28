@@ -21,7 +21,7 @@ func GetImage(c *gin.Context) {
 	downloadPath := fmt.Sprintf(picSumUrl, name)
 	downloadError := fileHelpers.DownloadFile(downloadPath, "/tmp/"+name)
 	if downloadError == nil {
-		fmt.Printf("Downloading '%s' from picsum", name)
+		fmt.Printf("Downloading '%s' from picsum\n", name)
 		if fileHelpers.LocalFileExists(name) {
 			c.File(fmt.Sprintf("/tmp/%s", name))
 			return
