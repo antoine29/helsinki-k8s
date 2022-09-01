@@ -1,0 +1,113 @@
+definitions:
+  models.RawToDo:
+    properties:
+      content:
+        type: string
+      isDone:
+        type: boolean
+    type: object
+  models.ToDo:
+    properties:
+      content:
+        type: string
+      id:
+        type: string
+      isDone:
+        type: boolean
+    type: object
+info:
+  contact: {}
+paths:
+  /health:
+    get:
+      description: Check API health
+      produces:
+      - application/json
+      responses: {}
+      summary: Check API health
+  /todos:
+    get:
+      description: Get ToDo's list
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.ToDo'
+            type: array
+      summary: Get ToDo's list
+    post:
+      description: Post ToDo
+      parameters:
+      - description: ToDo json payload
+        in: body
+        name: ToDo
+        required: true
+        schema:
+          $ref: '#/definitions/models.RawToDo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ToDo'
+      summary: Post ToDo
+  /todos/{id}:
+    delete:
+      description: Delete ToDo
+      parameters:
+      - description: Id of the ToDo to delete
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ToDo'
+      summary: Delete ToDo
+    get:
+      description: Get ToDo by id
+      parameters:
+      - description: ToDo Id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ToDo'
+      summary: Get ToDo by id
+    patch:
+      description: Update ToDo
+      parameters:
+      - description: Id of the ToDo to update
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: ToDo updated body
+        in: body
+        name: ToDo
+        required: true
+        schema:
+          $ref: '#/definitions/models.RawToDo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ToDo'
+      summary: Update ToDo
+swagger: "2.0"
