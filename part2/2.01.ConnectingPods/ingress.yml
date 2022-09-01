@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /status
+        pathType: Prefix
+        backend:
+          service:
+            name: log-output-service
+            port:
+              number: 2347
+
+# Ingress is working as a LB in port host:8081 -> cluster:80 (since we mapped that port on k3d cluster creation (6.web-server.../readme.md:19))
+# so we are redirecting trafic on '/' path to cluster port 2345 (previously mapped in web-server-service)
+
+# all the req resorce (after port ie localhost:8080/...) is being passed to the service
