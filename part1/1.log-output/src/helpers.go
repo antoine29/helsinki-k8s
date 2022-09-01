@@ -43,12 +43,16 @@ var ReaderExpectedParams = []string{
 	"serverPort",
 }
 
+var ReaderOptionalParams = []string{
+	"url",
+}
+
 var ProgramModes = []string{
 	"writer",
 	"reader",
 }
 
-var programParams = append(WriterExpectedParams, append(ReaderExpectedParams, ProgramModes...)...)
+var programParams = append(WriterExpectedParams, append(append(ReaderExpectedParams, ReaderOptionalParams...), ProgramModes...)...)
 
 var TRUE_STR string = "true"
 
@@ -97,7 +101,7 @@ func CheckMandatoryParams(paramsDict map[string]string, expectedParams []string)
 	}
 }
 
-func ParamIsPassed(param string, paramsDict map[string]string) bool {
+func IsParamPassed(param string, paramsDict map[string]string) bool {
 	_, isPresent := paramsDict[param]
 	return isPresent
 }

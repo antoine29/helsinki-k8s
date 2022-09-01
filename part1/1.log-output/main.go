@@ -28,15 +28,15 @@ func generateRandomStrings(secsInterval int, randomStrLength int) {
 func main() {
 	paramsDict := helpers.BuildProgramParamsDict(os.Args[1:])
 
-	if helpers.ParamIsPassed("reader", paramsDict) && !helpers.ParamIsPassed("writer", paramsDict) {
+	if helpers.IsParamPassed("reader", paramsDict) && !helpers.IsParamPassed("writer", paramsDict) {
 		helpers.CheckMandatoryParams(paramsDict, helpers.ReaderExpectedParams)
 		serverPort := paramsDict["serverPort"]
 		fmt.Println("Running in reader mode")
-		server.Server(serverPort)
+		server.Server(serverPort, paramsDict)
 		return
 	}
 
-	if !helpers.ParamIsPassed("reader", paramsDict) && helpers.ParamIsPassed("writer", paramsDict) {
+	if !helpers.IsParamPassed("reader", paramsDict) && helpers.IsParamPassed("writer", paramsDict) {
 		helpers.CheckMandatoryParams(paramsDict, helpers.WriterExpectedParams)
 		secsInterval := helpers.ParseStrToInt(paramsDict["secsInterval"])
 		randomStrLength := helpers.ParseStrToInt(paramsDict["strLength"])
@@ -50,6 +50,6 @@ func main() {
 	secsInterval := helpers.ParseStrToInt(paramsDict["secsInterval"])
 	randomStrLength := helpers.ParseStrToInt(paramsDict["strLength"])
 	fmt.Println("Running in writer/reader mode")
-	go server.Server(serverPort)
+	go server.Server(serverPort, paramsDict)
 	generateRandomStrings(secsInterval, randomStrLength)
 }
