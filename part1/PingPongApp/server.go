@@ -11,7 +11,7 @@ var counter int = 0
 func getCurrentStatus() string {
 	counter++
 	timeStamp := time.Now()
-	status := fmt.Sprintf("time: %s \t counter: %d\n", timeStamp, counter)
+	status := fmt.Sprintf("time: %s\nPing / Pongs: %d\n", timeStamp, counter)
 	return status
 }
 
