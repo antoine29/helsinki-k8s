@@ -5,7 +5,7 @@ WORKDIR /app
 COPY . .
 RUN yarn install && yarn run build
 
-FROM nginx:mainline-alpine-perl
+FROM nginx:stable-alpine
 WORKDIR /var/www/html
 EXPOSE 80
 COPY --from=builder /app/dist .
