@@ -1,26 +1,28 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import Counter from './lib/Counter.svelte'
-  import ToDoList from './lib/ToDoList.svelte';
+  import svelteLogo from "./assets/svelte.svg";
+  import Counter from "./lib/Counter.svelte";
+  import ToDoList from "./lib/ToDoList.svelte";
 
   const getDailyPicNumber = () => {
     const date = new Date();
-    const number = `${date.getDate()}${date.getMonth()+1}`
-    return number
-  }
+    const number = `${date.getDate()}${date.getMonth() + 1}`;
+    return number;
+  };
 
-  const apiUrl = import.meta.env.VITE_API_URL
+  const apiUrl = import.meta.env.VITE_API_URL;
 
-  const click = (event) => {console.log(apiUrl)}
+  const click = (event: any) => {
+    console.log(apiUrl);
+  };
 </script>
-
 
 <main class="container">
   <img
     src={`${apiUrl}/image/${getDailyPicNumber()}`}
     alt="Vite Logo"
-    on:click={click} />
- 
+    on:click={click}
+  />
+
   <h1>Go + Vite + Svelte + TS => ToDo list</h1>
   <!-- <div >
     <a href="https://vitejs.dev" target="_blank"> 
@@ -65,5 +67,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;  }
+    justify-content: center;
+  }
 </style>
