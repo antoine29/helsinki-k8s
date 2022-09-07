@@ -6,7 +6,29 @@ import (
 	"github.com/google/uuid"
 )
 
-var todo_s map[string]*models.ToDo
+var todo0 = models.ToDo{
+	Id:      "0",
+	Content: "todo0",
+	IsDone:  false,
+}
+
+var todo1 = models.ToDo{
+	Id:      "1",
+	Content: "todo1",
+	IsDone:  false,
+}
+
+var todo2 = models.ToDo{
+	Id:      "2",
+	Content: "todo2",
+	IsDone:  true,
+}
+
+var todo_s = map[string]*models.ToDo{
+	"0": &todo0,
+	"1": &todo1,
+	"2": &todo2,
+}
 
 func initializeMap() {
 	todo_s = make(map[string]*models.ToDo)

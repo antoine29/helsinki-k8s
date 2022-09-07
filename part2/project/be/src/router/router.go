@@ -4,6 +4,7 @@ import (
 	"antoine29/go/web-server/docs"
 	"antoine29/go/web-server/src/controllers"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -20,6 +21,7 @@ func setupSwagger() gin.HandlerFunc {
 
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(cors.Default())
 
 	r.GET("/image/:name", controllers.GetImage)
 	r.GET("/swagger/*any", setupSwagger())
