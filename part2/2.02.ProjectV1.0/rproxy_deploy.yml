@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rproxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rproxy
+  template:
+    metadata:
+      labels:
+        app: rproxy
+    spec:
+      containers:
+        - name: rproxy
+          image: k3d-myregistry.localhost:12345/project-rproxy
+
