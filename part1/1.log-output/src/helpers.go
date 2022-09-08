@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/joho/godotenv"
 )
 
 func GenerateRandomString(length int) string {
@@ -104,4 +106,15 @@ func CheckMandatoryParams(paramsDict map[string]string, expectedParams []string)
 func IsParamPassed(param string, paramsDict map[string]string) bool {
 	_, isPresent := paramsDict[param]
 	return isPresent
+}
+
+func GetMessageEnvVar() (string, bool) {
+	readingEnvFileError := godotenv.Load(".env")
+	if readingEnvFileError != nil {
+		fmt.Println("Error reading .env file")
+		return "", true
+	}
+
+	message := os.Getenv("MESSAGE")
+	return message, false
 }

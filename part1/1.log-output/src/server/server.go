@@ -30,7 +30,14 @@ func Server(port string, programParams map[string]string) {
 		url := programParams["url"]
 		fmt.Printf("Using '%s' as targuet url for '/status/http' endpoint\n", url)
 		http.HandleFunc("/status/http", func(w http.ResponseWriter, req *http.Request) {
-			currentStatus := statusHttpHandler.GetStatus(url)
+			httpResponse := statusHttpHandler.GetStatus(url)
+			currentStatus := httpResponse
+
+			envMessage, error := helpers.GetMessageEnvVar()
+			if !error {
+				currentStatus = envMessage + "\n" + currentStatus
+			}
+
 			fmt.Printf("/status/http:\n%s\n", currentStatus)
 			fmt.Fprintln(w, currentStatus)
 		})
