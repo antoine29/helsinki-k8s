@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fe
+  namespace: project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fe
+  template:
+    metadata:
+      labels:
+        app: fe
+    spec:
+      containers:
+        - name: project-fe
+          image: k3d-myregistry.localhost:12345/project-fe
+          env:
+            - name: VITE_API_URL
