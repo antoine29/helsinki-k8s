@@ -11,6 +11,7 @@ testing in other shell
 $ curl localhost:8080/status/file (to check the status stored on file)
 $ curl localhost:8080/status/memory (to check the status stored on memory)
 ```
+Aditionally you can pass a '-url http://targuet' param to enable the check url status feature. In this case a call to `localhost:8080/status/http` will make a query to the target url and include its response in the log-output reponse.
 
 - writer: to write the status (time stamp+randomStr) to the file and to memory
 ```shell

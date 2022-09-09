@@ -26,6 +26,7 @@ func generateRandomStrings(secsInterval int, randomStrLength int) {
 }
 
 func main() {
+	helpers.TryToReadEnvFiles()
 	paramsDict := helpers.BuildProgramParamsDict(os.Args[1:])
 
 	if helpers.IsParamPassed("reader", paramsDict) && !helpers.IsParamPassed("writer", paramsDict) {
