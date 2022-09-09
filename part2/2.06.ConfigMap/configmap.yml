@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-env
+  namespace: exercises
+# to copy the vars as an .env file volume
+data:
+  .env: |
+    MESSAGE=HelloChanged!
+# to copy the vars as env vars
+# data:
+#   MESSAGE: Hello
