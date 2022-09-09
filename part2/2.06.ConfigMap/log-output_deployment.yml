@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-output
+  namespace: exercises
+  labels:
+    name: log-output
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-output
+  template:
+    metadata:
+      labels:
+        app: log-output
+    spec:
+      volumes:
+        - name: configmap-vol
+          configMap:
+            name: configmap-env
+      containers:
+        - name: log-output
+          image: k3d-myregistry.localhost:12345/log-output
+          args: ["-reader", "-serverPort 8090", "-url http://pingpongsvc"]
+          # Using the configMap as env vars:
+          # env:
+          # - name: MESSAGE
+          #   valueFrom:
+          #     configMapKeyRef:
+          #       name: configmap-env
+          #       key: MESSAGE
+          # using the configMap as an .env file:
+          volumeMounts:
+          - name: configmap-vol
+            mountPath: /config
