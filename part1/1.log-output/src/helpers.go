@@ -109,12 +109,27 @@ func IsParamPassed(param string, paramsDict map[string]string) bool {
 }
 
 func GetMessageEnvVar() (string, bool) {
-	readingEnvFileError := godotenv.Load(".env")
-	if readingEnvFileError != nil {
-		fmt.Println("Error reading .env file")
+	message := os.Getenv("MESSAGE")
+	if message == "" {
+		fmt.Println("Error reading 'MESSAGE' from env vars")
 		return "", true
 	}
 
-	message := os.Getenv("MESSAGE")
 	return message, false
+}
+
+func TryToReadEnvFiles() {
+	readingLocalEnvError := godotenv.Load()
+	if readingLocalEnvError == nil {
+		fmt.Println("Reading .env file")
+		return
+	}
+
+	readingConfigEnvError := godotenv.Load("/config/.env")
+	if readingConfigEnvError == nil {
+		fmt.Println("Reading /config/.env file")
+		return
+	}
+
+	fmt.Println("Cannot find .env file, neither at relative path or at /config folder")
 }
