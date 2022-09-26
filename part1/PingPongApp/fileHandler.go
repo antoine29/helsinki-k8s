@@ -4,6 +4,7 @@ import (
 	"os"
 )
 
+// todo: get this path from env
 var filePath = "/tmp/status"
 
 func handleError(e error) {
