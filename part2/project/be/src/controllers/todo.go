@@ -1,7 +1,8 @@
 package controllers
 
 import (
-	src "antoine29/go/web-server/src/dao"
+	// dao "antoine29/go/web-server/src/dao/inMemory"
+	dao "antoine29/go/web-server/src/dao/pg"
 	"antoine29/go/web-server/src/models"
 	"net/http"
 
@@ -15,7 +16,7 @@ import (
 // @Success 200 {array} models.ToDo
 // @Router /todos [get]
 func GetTodos(c *gin.Context) {
-	todos := src.GetToDo_s()
+	todos := dao.GetToDo_s()
 	c.IndentedJSON(http.StatusOK, todos)
 }
 
@@ -28,7 +29,7 @@ func GetTodos(c *gin.Context) {
 // @Router /todos/{id} [get]
 func GetTodo(c *gin.Context) {
 	id := c.Param("id")
-	todo := src.GetToDo(id)
+	todo := dao.GetToDo(id)
 	if todo == nil {
 		c.Status(http.StatusNotFound)
 	} else {
@@ -55,7 +56,7 @@ func PostTodo(c *gin.Context) {
 		return
 	}
 
-	createdToDo := src.AddToDo(newToDo.Content)
+	createdToDo := dao.AddToDo(newToDo.Content)
 	c.IndentedJSON(http.StatusCreated, createdToDo)
 }
 
@@ -68,7 +69,7 @@ func PostTodo(c *gin.Context) {
 // @Router /todos/{id} [delete]
 func DeleteTodo(c *gin.Context) {
 	id := c.Param("id")
-	deletedToDoPointer := src.DeleteToDo(id)
+	deletedToDoPointer := dao.DeleteToDo(id)
 
 	if deletedToDoPointer == nil {
 		c.Status(http.StatusNotFound)
@@ -93,7 +94,7 @@ func UpdateTodo(c *gin.Context) {
 		return
 	}
 
-	updatedToDoPointer := src.UpdateToDo(id, updatedBody)
+	updatedToDoPointer := dao.UpdateToDo(id, updatedBody)
 
 	if updatedToDoPointer == nil {
 		c.Status(http.StatusNotFound)
