@@ -1,9 +1,13 @@
-package src
+package inMemory
 
 import (
 	"antoine29/go/web-server/src/models"
 
 	"github.com/google/uuid"
+
+	"fmt"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 var todo0 = models.ToDo{
@@ -89,4 +93,19 @@ func UpdateToDo(id string, todo models.ToDo) *models.ToDo {
 	} else {
 		return nil
 	}
+}
+
+func Test() {
+	dsn := "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+
+	if err != nil {
+		fmt.Println("error")
+		return
+	}
+
+	todo := models.ToDo{}
+	db.First(&todo)
+	fmt.Println(todo)
+
 }
