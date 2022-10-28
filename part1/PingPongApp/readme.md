@@ -57,3 +57,17 @@ $ kubectl logs -f ping-pong
 Server started in port: 80
 $ kubectl delete pod ping-pong
 ```
+
+## PG DB mode
+To save the ping-pong counts into a PG database the following env vars should be set:
+
+```
+GO_RUNMODE=db
+PG_HOST=pg-svc
+PG_PORT=5432
+PG_DBNAME=postgres
+PG_USER=postgres
+PG_PASSWORD=postgres
+PG_SCHEMA=pingpong
+PG_TABLE=counts
+```
