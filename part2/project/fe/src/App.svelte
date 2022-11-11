@@ -3,10 +3,11 @@
   import Counter from "./lib/Counter.svelte";
   import ToDoList from "./lib/ToDoList.svelte";
 
-  const getDailyPicNumber = () => {
+  const dayOfYear = () => {
     const date = new Date();
-    const number = `${date.getDate()}${date.getMonth() + 1}`;
-    return number;
+    return Math.floor(
+      (date - new Date(date.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24
+    );
   };
 
   const apiUrl = import.meta.env.VITE_API_URL;
@@ -18,7 +19,7 @@
 
 <main class="container">
   <img
-    src={`${apiUrl}/image/${getDailyPicNumber()}`}
+    src={`${apiUrl}/image/${dayOfYear()}`}
     alt="Vite Logo"
     on:click={click}
   />

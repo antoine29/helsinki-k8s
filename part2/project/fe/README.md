@@ -1,4 +1,17 @@
-# Svelte + TS + Vite
+# Svelte + TS + Vite = ToDo frontend
+
+First set the `VITE_API-URL` field (the backend api url) in a .env file.
+
+Then `yarn install` and `yarn dev` to run the application locally.
+
+## Production mode
+
+The application is builded and served through nginx as docker containers:
+
+```shell
+$ docker build . -t todos-fe --build-arg VITE_API_URL=http://localhost:8081
+$ docker run todos-fe -p 80:80
+```
 
 This template should help get you started developing with Svelte and TypeScript in Vite.
 
