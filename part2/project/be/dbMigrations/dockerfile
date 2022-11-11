@@ -1,0 +1,11 @@
+FROM liquibase/liquibase:4.16.1
+
+USER root
+
+ADD ./db1 /db1
+ADD ./entrypoint.sh /entrypoint.sh
+RUN chmod a+x /entrypoint.sh
+
+ENTRYPOINT [ "/entrypoint.sh" ]
+
+# /liquibase/liquibase --log-level debug --classpath="/" --url "jdbc:postgresql://172.17.0.1:5432/postgres?ssl=false" --username="postgres" --password="postgres" --changelog-file="/db1/db1.changelog-master.xml" update
