@@ -3,13 +3,23 @@ package pg
 import (
 	"antoine29/go/web-server/src/models"
 	"fmt"
+	"os"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
 	"github.com/google/uuid"
 )
 
-var dsn string = "host=localhost user=postgres password=postgres dbname=postgres port=5432 sslmode=disable"
+// var dsn string = "host=localhost port=5432 user=postgres password=postgres dbname=postgres search_path=todo sslmode=disable"
+var dsn string = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s search_path=%s sslmode=disable",
+	os.Getenv("PG_HOST"),
+	os.Getenv("PG_PORT"),
+	os.Getenv("PG_USER"),
+	os.Getenv("PG_PASSWORD"),
+	os.Getenv("PG_DBNAME"),
+	os.Getenv("PG_SCHEMA"),
+)
 
 func getPGConn() *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
