@@ -29,8 +29,6 @@ spec:
             value: postgres
           - name: PG_USERNAME
             value: postgres
-          # - name: PG_PASSWORD
-            # value: postgres
           - name: PG_PASSWORD
             valueFrom:
               secretKeyRef:
@@ -55,8 +53,6 @@ spec:
             value: postgres
           - name: PG_USER
             value: postgres
-          # - name: PG_PASSWORD
-            # value: postgres
           - name: PG_PASSWORD
             valueFrom:
               secretKeyRef:
