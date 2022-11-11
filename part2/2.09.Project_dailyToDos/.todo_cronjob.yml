@@ -1,0 +1,28 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: todo-cronjob
+  namespace: todos-ns
+spec:
+  # schedule: "* * * * *" # at every minute, for testing purpouses
+  schedule: "*/3 * * * *"   # every three mins
+  # schedule: "0 0 * * *"   # daily
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: todo-cronjob
+            image: curlimages/curl
+            # command: ["/bin/sh"]
+            # args: ["-c", "sleep infinity"]
+            command: 
+            - /bin/sh
+            - -c
+            - |
+              url=$(curl -Ls -o /dev/null -w %{url_effective} https://en.wikipedia.org/wiki/Special:Random)
+              curl -X POST http://todos-be-svc/api/todos \
+              -H 'Content-Type: application/json' \
+              -d '{"content":"Read '"$url"'"}'
+          restartPolicy: Never
+  
