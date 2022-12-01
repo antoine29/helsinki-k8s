@@ -3,33 +3,48 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"time"
+	"os"
 )
 
-var counter int = 0
-
-func getCurrentStatus() string {
-	counter++
-	timeStamp := time.Now()
-	status := fmt.Sprintf("time: %s\nPing / Pongs: %d\n", timeStamp, counter)
-	return status
+func statusController(w http.ResponseWriter, req *http.Request) {
+	runMode := getRunMode()
+	status, counter := GetCurrentStatus(runMode)
+	WriteStatus(status, counter, runMode)
+	fmt.Println(req.RequestURI)
+	fmt.Fprintln(w, status)
 }
 
-func Server(port string, runMode string) {
-	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		status := getCurrentStatus()
-		if runMode == "memory" {
-			WriteToFile(status)
-		}
+func healthController(w http.ResponseWriter, req *http.Request) {
+	dbReadiness := DBreadiness()
+	if dbReadiness {
+		fmt.Fprintln(w, "DB is ready")
+		return
+	}
 
-		if runMode == "db" {
-			WriteToDB(counter, status)
-		}
+	http.Error(w, "Error connecting to DB", 503)
+}
 
-		fmt.Println(req.RequestURI)
-		fmt.Fprintln(w, status)
-	})
+func Server(port string) {
+	http.HandleFunc("/", statusController)
+	http.HandleFunc("/health", healthController)
 
 	fmt.Printf("Listening on: %s \n", port)
 	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
+}
+
+func getRunMode() string {
+	mode := os.Getenv("GO_RUNMODE")
+
+	if mode == "" {
+		fmt.Println("Running in memory mode")
+		return "memory"
+	}
+
+	if mode != "db" {
+		fmt.Printf("Invalid '%s' mode. Running in memory mode \n", mode)
+		return "memory"
+	}
+
+	fmt.Println("Running in db mode")
+	return "db"
 }

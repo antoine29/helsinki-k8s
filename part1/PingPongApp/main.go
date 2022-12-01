@@ -18,22 +18,5 @@ func main() {
 		port = "8080"
 	}
 
-	Server(port, runMode)
-}
-
-func getRunMode() string {
-	mode := os.Getenv("GO_RUNMODE")
-
-	if mode == "" {
-		fmt.Println("Running in memory mode")
-		return "memory"
-	}
-
-	if mode != "db" {
-		fmt.Printf("Invalid '%s' mode. Running in memory mode \n", mode)
-		return "memory"
-	}
-
-	fmt.Println("Running in db mode")
-	return "db"
+	Server(port)
 }
