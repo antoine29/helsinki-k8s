@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -10,48 +11,45 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var dbEnvVarsMap = map[string]string{
-	"host":     "PG_HOST",
-	"port":     "PG_PORT",
-	"user":     "PG_USER",
-	"password": "PG_PASSWORD",
-	"dbName":   "PG_DBNAME",
-	"dbSchema": "PG_SCHEMA",
-	"dbTable":  "PG_TABLE",
-}
-
 var (
-	host     = os.Getenv(dbEnvVarsMap["host"])
-	port, _  = strconv.Atoi(os.Getenv(dbEnvVarsMap["port"]))
-	user     = os.Getenv(dbEnvVarsMap["user"])
-	password = os.Getenv(dbEnvVarsMap["password"])
-	dbname   = os.Getenv(dbEnvVarsMap["dbName"])
-	schema   = os.Getenv(dbEnvVarsMap["dbSchema"])
-	table    = os.Getenv(dbEnvVarsMap["dbTable"])
+	host     = os.Getenv(DbEnvVarsMap["host"])
+	port, _  = strconv.Atoi(os.Getenv(DbEnvVarsMap["port"]))
+	user     = os.Getenv(DbEnvVarsMap["user"])
+	password = os.Getenv(DbEnvVarsMap["password"])
+	dbname   = os.Getenv(DbEnvVarsMap["dbName"])
+	schema   = os.Getenv(DbEnvVarsMap["dbSchema"])
+	table    = os.Getenv(DbEnvVarsMap["dbTable"])
 )
-
-type Count struct {
-	id         int
-	count      int
-	count_date string
-	hash       string
-}
 
 func getDBconn() (*sql.DB, bool) {
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
 
 	// open database
 	db, dbOpenError := sql.Open("postgres", psqlconn)
-	if gotDBerror(dbOpenError) {
+	if GotDBerror(dbOpenError) {
 		return nil, true
 	}
 
 	dbPingError := db.Ping()
-	if gotDBerror(dbPingError) {
+	if GotDBerror(dbPingError) {
 		return nil, true
 	}
 
 	return db, false
+}
+
+func DBreadiness() bool {
+	db, dbConnError := getDBconn()
+	if dbConnError {
+		return false
+	}
+
+	_, dbReadError := db.Query(fmt.Sprintf("SELECT COUNT(1) FROM %s.%s", schema, table))
+	if GotDBerror(dbReadError) {
+		return false
+	}
+
+	return true
 }
 
 func getCounts() []Count {
@@ -63,7 +61,7 @@ func getCounts() []Count {
 	}
 
 	rows, readError := db.Query(fmt.Sprintf("SELECT id, count, count_date, hash FROM %s.%s", schema, table))
-	if gotDBerror(readError) {
+	if GotDBerror(readError) {
 		return counts
 	}
 
@@ -74,7 +72,7 @@ func getCounts() []Count {
 		_count := Count{}
 
 		parsingRowError := rows.Scan(&_count.id, &_count.count, &_count.count_date, &_count.hash)
-		if !gotDBerror(parsingRowError) {
+		if !GotDBerror(parsingRowError) {
 			counts = append(counts, _count)
 		}
 	}
@@ -83,7 +81,35 @@ func getCounts() []Count {
 	// fmt.Printf("%+v\n", counts)
 }
 
-func insertCount(count int, hash string) {
+func ReadCountFromDB() *Count {
+	db, dbError := getDBconn()
+	if dbError {
+		return nil
+	}
+
+	row, readError := db.Query(fmt.Sprintf("SELECT * FROM %s.%s WHERE count = (select MAX(count) FROM %s.%s)", schema, table, schema, table))
+	if GotDBerror(readError) {
+		return nil
+	}
+
+	defer db.Close()
+	defer row.Close()
+
+	count := Count{}
+	for row.Next() {
+		parsingRowError := row.Scan(&count.id, &count.count, &count.count_date, &count.hash)
+		// fmt.Println(count)
+		if GotDBerror(parsingRowError) {
+			log.Println("Error parsing count row")
+			return nil
+		}
+	}
+
+	return &count
+	// fmt.Printf("%+v\n", counts)
+}
+
+func WriteToDB(count int, hash string) {
 	db, dbError := getDBconn()
 	if dbError {
 		return
@@ -91,40 +117,7 @@ func insertCount(count int, hash string) {
 
 	defer db.Close()
 	currentTime := time.Now().Format("01-02-2006  15:04:05")
-	insertQuery := fmt.Sprintf("INSERT INTO %s.%s (count, count_date, hash) values (%d, '%s', '%s')", schema, table, count, currentTime, hash)
+	insertQuery := fmt.Sprintf("INSERT INTO %s.%s (count, count_date, hash) values (%d, '%s', '%s')", schema, table, count+1, currentTime, hash)
 	_, insertError := db.Exec(insertQuery)
-	gotDBerror(insertError)
-}
-
-// todo: move to helpers
-func gotDBerror(err error) bool {
-	if err != nil {
-		fmt.Println(err.Error())
-		return true
-	}
-
-	return false
-}
-
-func WriteToDB(count int, status string) {
-	insertCount(count, status)
-}
-
-func FullDBEnvVars() bool {
-	for _, dbEnvVarName := range dbEnvVarsMap {
-		value := os.Getenv(dbEnvVarName)
-		if value == "" {
-			fmt.Printf("Missing '%s' db env var", dbEnvVarName)
-			return false
-		}
-
-		if dbEnvVarName == "PG_PORT" {
-			if _, error := strconv.Atoi(os.Getenv("PG_PORT")); error != nil {
-				fmt.Println("Error parsing PG_PORT env var")
-				return false
-			}
-		}
-	}
-
-	return true
+	GotDBerror(insertError)
 }
