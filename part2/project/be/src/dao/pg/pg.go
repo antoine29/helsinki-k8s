@@ -132,3 +132,19 @@ func UpdateToDo(id string, todo models.ToDo) *models.ToDo {
 	return dbTodo
 }
 
+func IsDBHealthy() (bool, *string) {
+	var todo models.ToDo
+	conn := getPGConn()
+	if conn == nil {
+		error := "Error connecting to DB"
+		return false, &error
+	}
+
+	result := conn.Take(&todo)
+	if result.Error == nil || result.Error.Error() == "record not found" {
+		return true, nil
+	}
+
+	errorStr := result.Error.Error()
+	return false, &errorStr
+}

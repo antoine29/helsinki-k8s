@@ -111,12 +111,3 @@ func UpdateTodo(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, *updatedToDoPointer)
 	}
 }
-
-// @Summary Check API health
-// @Schemes http
-// @Description Check API health
-// @Produce json
-// @Router /health [get]
-func HealthCheck(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, gin.H{"status": "Healty"})
-}
