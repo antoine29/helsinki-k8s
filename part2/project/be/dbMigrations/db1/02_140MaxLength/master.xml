@@ -2,6 +2,7 @@
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
     http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
 
-  <include file="01_dbInit/master.xml" relativeToChangelogFile="true" />
-  <include file="02_140MaxLength/master.xml" relativeToChangelogFile="true" />
+  <changeSet author="postgres" id="02_140MaxLengthForTodos.sql" runOnChange="true">
+    <sqlFile encoding="UTF-8" path="02_140MaxLengthForTodos.sql" relativeToChangelogFile="true" splitStatements="false" stripComments="true" />
+  </changeSet>
 </databaseChangeLog>
