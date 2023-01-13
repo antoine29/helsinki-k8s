@@ -2,7 +2,8 @@ package pg
 
 import (
 	"antoine29/go/web-server/src/models"
-	"fmt"
+  "log"
+  "fmt"
 	"os"
 
 	"gorm.io/driver/postgres"
@@ -24,8 +25,8 @@ var dsn string = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sear
 func getPGConn() *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		fmt.Println("Error connecting to PG DB")
-		fmt.Println(err)
+		log.Println("Error connecting to PG DB")
+		log.Println(err)
 		return nil
 	}
 
@@ -41,8 +42,8 @@ func GetToDo_s() []models.ToDo {
 	todos := []models.ToDo{}
 	result := conn.Find(&todos)
 	if result.Error != nil {
-		fmt.Println("Error getting pg todos")
-		fmt.Println(result.Error)
+		log.Println("Error getting pg todos")
+		log.Println(result.Error)
 		return nil
 	}
 
@@ -58,8 +59,8 @@ func GetToDo(id string) *models.ToDo {
 	todo := models.ToDo{}
 	result := conn.First(&todo, "id = ?", id)
 	if result.Error != nil {
-		fmt.Println("Error getting todo")
-		fmt.Println(result.Error)
+		log.Println("Error getting todo")
+		log.Println(result.Error)
 		return nil
 	}
 
@@ -81,8 +82,8 @@ func AddToDo(content string) *models.ToDo {
 
 	result := conn.Create(&newToDo)
 	if result.Error != nil {
-		fmt.Println("Error creating todo")
-		fmt.Println(result.Error)
+		log.Println("Error creating todo")
+		log.Println(result.Error)
 		return nil
 	}
 
@@ -99,7 +100,7 @@ func DeleteToDo(id string) *models.ToDo {
 	result := conn.Delete(&todo2delete)
 	// fmt.Printf("%+v\n", result)
 	if result.RowsAffected == 0 {
-		fmt.Println("Error deleting todo")
+		log.Println("Error deleting todo")
 		return nil
 	}
 
@@ -114,7 +115,7 @@ func UpdateToDo(id string, todo models.ToDo) *models.ToDo {
 
 	dbTodo := GetToDo(id)
 	if dbTodo == nil {
-		fmt.Printf("Todo with id: %s not found", id)
+		log.Printf("Todo with id: %s not found", id)
 		return nil
 	}
 
@@ -124,9 +125,10 @@ func UpdateToDo(id string, todo models.ToDo) *models.ToDo {
 	result := conn.Save(dbTodo)
 	// fmt.Printf("%+v\n", result)
 	if result.RowsAffected == 0 {
-		fmt.Println("Error updating todo")
+		log.Println("Error updating todo")
 		return nil
 	}
 
 	return dbTodo
 }
+
