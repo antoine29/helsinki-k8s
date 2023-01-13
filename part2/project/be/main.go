@@ -13,8 +13,8 @@ func main() {
 		port = "8080"
 	}
 
-	r := router.SetupRouter()
+	server := router.SetupServer()
 
 	fmt.Printf("Go to: 'http://localhost:%s/swagger/index.html' to check Swagger API docs.\n", port)
-	r.Run(fmt.Sprintf(":%s", port))
+	server.Run(fmt.Sprintf(":%s", port))
 }

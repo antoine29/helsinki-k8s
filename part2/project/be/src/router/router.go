@@ -19,7 +19,7 @@ func setupSwagger() gin.HandlerFunc {
 	return ginSwagger.WrapHandler(swaggerfiles.Handler)
 }
 
-func SetupRouter() *gin.Engine {
+func SetupServer() *gin.Engine {
 	r := gin.Default()
 	r.Use(cors.Default())
 
