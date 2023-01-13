@@ -1,0 +1,23 @@
+# just for testing purpouses
+#kind: # https://kubernetes.io/docs/concepts/workloads/controllers/job/
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: be-test
+  namespace: todos-ns
+  labels:
+    app: be-test
+spec:
+  template:
+    metadata:
+      name: be-test
+      labels:
+        app: be-test
+
+    spec:
+      containers:
+        - name: be-test
+          image: k3d-myregistry.localhost:12345/be-test
+      restartPolicy: OnFailure
+      dnsPolicy: ClusterFirst
+  
