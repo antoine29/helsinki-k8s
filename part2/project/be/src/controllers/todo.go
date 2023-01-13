@@ -4,6 +4,7 @@ import (
 	// dao "antoine29/go/web-server/src/dao/inMemory"
 	dao "antoine29/go/web-server/src/dao/pg"
 	"antoine29/go/web-server/src/models"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -53,6 +54,14 @@ func PostTodo(c *gin.Context) {
 
 	if newToDo.Content == "" {
 		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"error": "'content' field expected in the payload body"})
+		return
+	}
+
+	log.Println("Creating ToDo:", newToDo.Content)
+	if len(newToDo.Content) > 140 {
+		maxLengthError := "'content' field expected to be 140 chars at most"
+		log.Println("Error creating ToDo: ", newToDo.Content, maxLengthError)
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"error": maxLengthError})
 		return
 	}
 
