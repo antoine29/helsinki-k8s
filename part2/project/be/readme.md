@@ -1,14 +1,10 @@
 # Running the Todo_s backend 
 
 ## Running locally
+Fill the `.env` file properly
+
 ```shell
-$ export PG_HOST=localhost
-$ export PG_PORT=5432
-$ export PG_USER=postgres
-$ export PG_PASSWORD=postgres
-$ export PG_DBNAME=postgres
-$ export PG_SCHEMA=todo
-$ GO_PORT=8080 go run main.go
+$ go run main.go
 ```
 
 ## 1. Running as a docker container

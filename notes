@@ -45,3 +45,11 @@ kubectl logs -f hashgenerator-dep-5f67bd4db8-khrqf
 kubectl run temp --image=mycluster-registry:34447/temporised-string -- 3
 kubectl create deployment temporiser --image=mycluster-registry:34447/temporised-string -- /app/temporised-string 10
 kubectl describe pod temp
+
+
+
+to spin up a k3d cluster and registry
+$ k3d registry create myregistry.localhost --port 12345
+$ k3d cluster create mycluster --port 8082:30080@agent:0 -p 8081:80@loadbalancer --agents 2 --registry-use k3d-myregistry.localhost:12345
+
+
