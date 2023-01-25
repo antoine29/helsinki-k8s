@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-output
+  namespace: pp-lo
+  labels:
+    name: log-output
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-output
+  template:
+    metadata:
+      labels:
+        app: log-output
+    spec:
+     containers:
+        - name: log-output
+          image: k3d-myregistry.localhost:12345/logoutput
+          args: ["-reader", "-serverPort 8090", "-url http://pingpongsvc"]
+          readinessProbe:
+            initialDelaySeconds: 10 # Initial delay until the readiness is tested
+            periodSeconds: 5 # How often to test
+            httpGet:
+               path: /http_health
+               port: 8090
+

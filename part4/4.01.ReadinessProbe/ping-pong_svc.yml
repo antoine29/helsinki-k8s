@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pingpongsvc
+  namespace: pp-lo
+spec:
+  type: ClusterIP
+  selector:
+    app: ping-pong-deploy
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8080
