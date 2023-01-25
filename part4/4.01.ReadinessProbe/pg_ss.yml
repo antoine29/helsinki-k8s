@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pg-ss
+  namespace: pp-lo
+spec:
+  serviceName: pg-ss-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pg-ss
+  template:
+    metadata:
+      labels:
+        app: pg-ss
+    spec:
+      containers:
+        - name: postgresql-db
+          image: k3d-myregistry.localhost:12345/postgres:14.3-alpine3.16
+          ports:
+            - name: pg-ss-port
+              containerPort: 5432
+          volumeMounts:
+            - name: postgresql-db-disk
+              mountPath: /data
+          env:
+          # - name: POSTGRES_PASSWORD
+            # value: postgres
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: secrets
+                key: PG_PASSWORD
+          - name: PGDATA
+            value: /data/pgdata
+
+  # Volume Claim
+  volumeClaimTemplates:
+    - metadata:
+        name: postgresql-db-disk
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: local-path
+        resources:
+          requests:
+            storage: 512Mi
+
