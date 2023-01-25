@@ -11,7 +11,7 @@ testing in other shell
 $ curl localhost:8080/status/file (to check the status stored on file)
 $ curl localhost:8080/status/memory (to check the status stored on memory)
 ```
-Aditionally you can pass a '-url http://targuet' param to enable the check url status feature. In this case a call to `localhost:8080/status/http` will make a query to the target url and include its response in the log-output reponse.
+Aditionally you can pass a '-url http://targuet' param to enable the check url status feature. In this case a call to `localhost:8080/status/http` will make a query to the target url and will include its response in the log-output reponse.
 
 - writer: to write the status (time stamp+randomStr) to the file and to memory
 ```shell
@@ -51,3 +51,17 @@ $ kubectl create deployment log-output --image=k3d-myregistry.localhost:12345/lo
 
 ToDo: we're passing the '/app/exe 5' param to override the entire image entrypoint and cmd, in the CLI mode of `create deployment there is no way to pass a cmd without a entrypoint`
 https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#-em-deployment-em-
+
+## Health endpoint
+
+```shell
+$ go run . -serverPort 8080 -url http://localhost:8090 -reader
+Reading .env file
+Running in reader mode
+Listening on: 8080 
+Using 'http://localhost:8090/status' as targuet url
+/status/http:
+
+$ curl http://localhost:8080/http_health
+healthy
+```
