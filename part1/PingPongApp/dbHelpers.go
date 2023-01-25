@@ -8,14 +8,14 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var DbEnvVarsMap = map[string]string{
-	"host":     "PG_HOST",
-	"port":     "PG_PORT",
-	"user":     "PG_USER",
-	"password": "PG_PASSWORD",
-	"dbName":   "PG_DBNAME",
-	"dbSchema": "PG_SCHEMA",
-	"dbTable":  "PG_TABLE",
+var ExpectedDBenvVars = []string{
+	"PG_HOST",
+	"PG_PORT",
+	"PG_USER",
+	"PG_PASSWORD",
+	"PG_DBNAME",
+	"PG_SCHEMA",
+	"PG_TABLE",
 }
 
 type Count struct {
@@ -35,7 +35,7 @@ func GotDBerror(err error) bool {
 }
 
 func FullDBEnvVars() bool {
-	for _, dbEnvVarName := range DbEnvVarsMap {
+	for _, dbEnvVarName := range ExpectedDBenvVars {
 		value := os.Getenv(dbEnvVarName)
 		if value == "" {
 			fmt.Printf("Missing '%s' db env var", dbEnvVarName)

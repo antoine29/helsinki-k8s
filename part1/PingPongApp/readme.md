@@ -71,3 +71,17 @@ PG_PASSWORD=postgres
 PG_SCHEMA=pingpong
 PG_TABLE=counts
 ```
+
+
+## Health endpoint
+Set `.env` file and then:
+
+```shell
+$ go run .
+Reading .env file
+Running in db mode
+Listening on: 8090
+
+$ curl http://localhost:8090/health
+DB is ready
+```

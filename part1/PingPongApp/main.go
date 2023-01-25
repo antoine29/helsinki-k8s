@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+	TryToReadEnvFiles()
 	runMode := getRunMode()
 	isDBEnvVarsComplete := FullDBEnvVars()
 	if runMode == "db" && !isDBEnvVarsComplete {
@@ -20,3 +21,4 @@ func main() {
 
 	Server(port)
 }
+

@@ -8,22 +8,22 @@ import (
 	"strconv"
 	"time"
 
+	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/lib/pq"
 )
 
 var (
-	host     = os.Getenv(DbEnvVarsMap["host"])
-	port, _  = strconv.Atoi(os.Getenv(DbEnvVarsMap["port"]))
-	user     = os.Getenv(DbEnvVarsMap["user"])
-	password = os.Getenv(DbEnvVarsMap["password"])
-	dbname   = os.Getenv(DbEnvVarsMap["dbName"])
-	schema   = os.Getenv(DbEnvVarsMap["dbSchema"])
-	table    = os.Getenv(DbEnvVarsMap["dbTable"])
+	host     = os.Getenv("PG_HOST")
+	port, _  = strconv.Atoi(os.Getenv("PG_PORT"))
+	user     = os.Getenv("PG_USER")
+	password = os.Getenv("PG_PASSWORD")
+	dbname   = os.Getenv("PG_DBNAME")
+	schema   = os.Getenv("PG_SCHEMA")
+	table    = os.Getenv("PG_TABLE")
 )
 
 func getDBconn() (*sql.DB, bool) {
 	psqlconn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-
 	// open database
 	db, dbOpenError := sql.Open("postgres", psqlconn)
 	if GotDBerror(dbOpenError) {
