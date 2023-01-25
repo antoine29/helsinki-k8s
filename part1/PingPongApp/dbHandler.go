@@ -40,6 +40,7 @@ func getDBconn() (*sql.DB, bool) {
 
 func DBreadiness() bool {
 	db, dbConnError := getDBconn()
+	defer db.Close()
 	if dbConnError {
 		return false
 	}
