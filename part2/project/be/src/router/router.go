@@ -25,7 +25,6 @@ func SetupServer() *gin.Engine {
 
 	r.GET("/image/:name", controllers.GetImage)
 	r.GET("/swagger/*any", setupSwagger())
-	r.GET("/health", controllers.HealthCheck)
 
 	api := r.Group("/api")
 	{
@@ -34,6 +33,7 @@ func SetupServer() *gin.Engine {
 		api.POST("/todos", controllers.PostTodo)
 		api.PATCH("/todos/:id", controllers.UpdateTodo)
 		api.DELETE("/todos/:id", controllers.DeleteTodo)
+		api.GET("/health", controllers.HealthCheck)
 	}
 
 	return r
