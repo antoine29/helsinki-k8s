@@ -39,6 +39,8 @@ func GetToDo_s() []models.ToDo {
 		return nil
 	}
 
+	defer closeDbConn(conn)
+
 	todos := []models.ToDo{}
 	result := conn.Find(&todos)
 	if result.Error != nil {
@@ -56,6 +58,8 @@ func GetToDo(id string) *models.ToDo {
 		return nil
 	}
 
+	defer closeDbConn(conn)
+
 	todo := models.ToDo{}
 	result := conn.First(&todo, "id = ?", id)
 	if result.Error != nil {
@@ -72,6 +76,8 @@ func AddToDo(content string) *models.ToDo {
 	if conn == nil {
 		return nil
 	}
+
+	defer closeDbConn(conn)
 
 	newId := uuid.New().String()
 	newToDo := models.ToDo{
@@ -96,6 +102,8 @@ func DeleteToDo(id string) *models.ToDo {
 		return nil
 	}
 
+	defer closeDbConn(conn)
+
 	todo2delete := models.ToDo{Id: id}
 	result := conn.Delete(&todo2delete)
 	// fmt.Printf("%+v\n", result)
@@ -112,6 +120,8 @@ func UpdateToDo(id string, todo models.ToDo) *models.ToDo {
 	if conn == nil {
 		return nil
 	}
+
+	defer closeDbConn(conn)
 
 	dbTodo := GetToDo(id)
 	if dbTodo == nil {
@@ -133,13 +143,15 @@ func UpdateToDo(id string, todo models.ToDo) *models.ToDo {
 }
 
 func IsDBHealthy() (bool, *string) {
-	var todo models.ToDo
 	conn := getPGConn()
 	if conn == nil {
 		error := "Error connecting to DB"
 		return false, &error
 	}
 
+	defer closeDbConn(conn)
+
+	var todo models.ToDo
 	result := conn.Take(&todo)
 	if result.Error == nil || result.Error.Error() == "record not found" {
 		return true, nil
@@ -147,4 +159,9 @@ func IsDBHealthy() (bool, *string) {
 
 	errorStr := result.Error.Error()
 	return false, &errorStr
+}
+
+func closeDbConn(db *gorm.DB) {
+	dbInstance, _ := db.DB()
+	_ = dbInstance.Close()
 }
