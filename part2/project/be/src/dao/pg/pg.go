@@ -2,27 +2,25 @@ package pg
 
 import (
 	"antoine29/go/web-server/src/models"
-  "log"
-  "fmt"
-	"os"
+	"fmt"
+	"log"
 
+	config "antoine29/go/web-server/src"
+	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-
-	"github.com/google/uuid"
-)
-
-// var dsn string = "host=localhost port=5432 user=postgres password=postgres dbname=postgres search_path=todo sslmode=disable"
-var dsn string = fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s search_path=%s sslmode=disable",
-	os.Getenv("PG_HOST"),
-	os.Getenv("PG_PORT"),
-	os.Getenv("PG_USER"),
-	os.Getenv("PG_PASSWORD"),
-	os.Getenv("PG_DBNAME"),
-	os.Getenv("PG_SCHEMA"),
 )
 
 func getPGConn() *gorm.DB {
+	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s search_path=%s sslmode=disable",
+		config.EnvVarsDict["PG_HOST"],
+		config.EnvVarsDict["PG_PORT"],
+		config.EnvVarsDict["PG_USER"],
+		config.EnvVarsDict["PG_PASSWORD"],
+		config.EnvVarsDict["PG_DBNAME"],
+		config.EnvVarsDict["PG_SCHEMA"],
+	)
+
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Println("Error connecting to PG DB")
@@ -143,6 +141,7 @@ func UpdateToDo(id string, todo models.ToDo) *models.ToDo {
 }
 
 func IsDBHealthy() (bool, *string) {
+	config.LoadEnvVarsDict(true)
 	conn := getPGConn()
 	if conn == nil {
 		error := "Error connecting to DB"
