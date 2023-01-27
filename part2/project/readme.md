@@ -7,6 +7,3 @@ Deployed as kubernetes
 
 ## ToDo:
 
-- fix be health endpoint. it should be `be-svc/health` instead `be-svc/api/health`
-- fix swagger docs in k8s
-
