@@ -57,3 +57,10 @@ $ k get all -n loki-stack
 then on grafana, settings, add data source: http://loki.loki-stack:3100. After selecting the backend pod you will see the backend logs.
 
 ![alt](pic.png)
+
+
+To delete helm resources (on each ns)
+```shell
+$ helm list --all
+$ helm delete {resource listed name}
+``` 
