@@ -1,0 +1,26 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: todos-ns-pods-cpu-usage
+  namespace: todos-ns
+spec:
+  metrics:
+  - name: Todos-ns pods cpu usage
+    initialDelay: 5m
+    # successCondition: result < 0.01   # short enough to fail (usage percentage)
+    successCondition: result < 3        # long enough to pass
+    # successCondition: result == 1     # raw testing
+    provider:
+      prometheus:
+        address: http://kube-prometheus-stack-1675-prometheus.prometheus.svc.cluster.local:9090 # check how dns is resolved across namespaces
+        query: |
+          scalar(
+            sum(
+          	  sum(node_namespace_pod_container:container_cpu_usage_seconds_total:sum_irate{cluster="", namespace="todos-ns"})
+              by (pod)
+            ) * 100
+          )
+
+
+
+    # 1 == bool 1 # raw return value for testing
