@@ -1,0 +1,84 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: todos-be
+  namespace: todos-ns
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todos-be
+  strategy:
+    canary:
+      steps:
+      - setWeight: 50
+      - analysis:
+          templates:
+          - templateName: todos-ns-pods-cpu-usage
+  template:
+    metadata:
+      labels:
+        app: todos-be
+    spec:
+      volumes:
+        - name: configmap-vol
+          configMap:
+            name: configmap-env
+      initContainers:
+        - name: pg-readiness
+          image: k3d-myregistry.localhost:12345/postgres:14.3-alpine3.16
+          # todo: command params should come from env  
+          command: ["/bin/sh", "-c", "until pg_isready -h pg-ss-svc -p 5432 -d postgres; do echo waiting pg db at pg-ss-svc; sleep 5; done"]
+        - name: pg-migrations
+          image: k3d-myregistry.localhost:12345/todos-be_migrations
+          env:
+          - name: PG_HOST
+            value: pg-ss-svc
+          - name: PG_PORT
+            value: "5432"
+          - name: PG_DBNAME
+            value: postgres
+          - name: PG_USERNAME
+            value: postgres
+          - name: PG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: secrets
+                key: PG_PASSWORD
+          - name: CHANGE_LOG
+            value: /db1/db1.changelog-master.xml
+      containers:
+        - name: todos-be
+          image: k3d-myregistry.localhost:12345/todos-be:V0-init
+          # image: k3d-myregistry.localhost:12345/todos-be:V1-ok
+          # image: k3d-myregistry.localhost:12345/todos-be:V2-failing
+          env:
+          - name: GO_PORT
+            value: "8080"
+          - name: GIN_MODE
+            value: "release"
+          - name: PG_HOST
+            value: pg-ss-svc
+          - name: PG_PORT
+            value: "5432"
+          - name: PG_DBNAME
+            value: postgres
+          - name: PG_SCHEMA
+            value: todo
+          - name: PG_USER
+            value: postgres
+          - name: PG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: secrets
+                key: PG_PASSWORD
+          volumeMounts:
+          - name: configmap-vol
+            mountPath: /config
+          livenessProbe:
+            initialDelaySeconds: 30 # Initial delay until the liveness is tested
+            periodSeconds: 30 # How often to test
+            httpGet:
+               path: /api/health
+               port: 8080
+

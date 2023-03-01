@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos-rproxy
+  namespace: todos-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todos-rproxy
+  template:
+    metadata:
+      labels:
+        app: todos-rproxy
+    spec:
+      containers:
+        - name: todos-rproxy
+          image: k3d-myregistry.localhost:12345/todos-rproxy
+
