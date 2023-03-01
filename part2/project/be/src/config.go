@@ -11,12 +11,14 @@ var EnvVarsDict map[string]string = make(map[string]string)
 func LoadEnvVarsDict(silentMode bool) {
 	envVarsDict, err := godotenv.Read()
 	if err == nil {
+		// first: tries to load env vars from .env file
 		if !silentMode {
 			log.Print(".env file loaded")
 		}
 
 		EnvVarsDict = envVarsDict
 	} else {
+		// second: tries to load env vars from os
 		EnvVarsDict["PG_HOST"] = os.Getenv("PG_HOST")
 		EnvVarsDict["PG_PORT"] = os.Getenv("PG_PORT")
 		EnvVarsDict["PG_USER"] = os.Getenv("PG_USER")
@@ -28,6 +30,7 @@ func LoadEnvVarsDict(silentMode bool) {
 
 	alternativeEnvVarsDict, err := godotenv.Read("/config/.env")
 	if err == nil {
+		// third: tries to load an alternative .env file and overwrite PG_PASSWORD from there
 		if !silentMode {
 			log.Print("alternative /config/.env file loaded. Overwriting PG_PASSWORD value")
 		}

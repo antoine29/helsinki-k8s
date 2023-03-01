@@ -4,13 +4,14 @@ import (
 	config "antoine29/go/web-server/src"
 	"antoine29/go/web-server/src/router"
 	"fmt"
+	"log"
 )
 
 func main() {
 	config.LoadEnvVarsDict(false)
 	port := config.EnvVarsDict["GO_PORT"]
 	if port == "" {
-		fmt.Println("Warning: 'GO_PORT' environment variable was not set, using 8080 as default.")
+		log.Println("Warning: 'GO_PORT' environment variable was not set, using 8080 as default.")
 		port = "8080"
 	}
 
