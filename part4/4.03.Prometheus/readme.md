@@ -23,7 +23,7 @@ Handling connection for 9090
 Handling connection for 9090
 ```
 
-The query to get the number of pods created by StatefulSets on Prometheus namespace is:
+The query to get the number of pods created by StatefulSets on Prometheus namespace is: (check docs at https://github.com/kubernetes/kube-state-metrics/tree/main/docs)
 
 ```
 scalar(count(kube_pod_info{namespace='prometheus', created_by_kind='StatefulSet'}))
