@@ -111,3 +111,30 @@ func UpdateTodo(c *gin.Context) {
 		c.IndentedJSON(http.StatusOK, *updatedToDoPointer)
 	}
 }
+
+// @Summary Put ToDo
+// @Schemes http
+// @Description Put (update or create) a ToDo
+// @Produce json
+// @Param	ToDo	body	models.RawToDo	true	"ToDo updated body"
+// @Success 200 {object} models.ToDo // Todo: this coul have two ok respones (created and updated)
+// @Router /todos/{id} [put]
+func PutTodo(c *gin.Context) {
+	var todo models.ToDo
+	if err := c.BindJSON(&todo); err != nil {
+		c.JSON(http.StatusUnprocessableEntity, err)
+		return
+	}
+
+	id := todo.Id
+	if updatedToDoPointer := dao.UpdateToDo(id, todo); updatedToDoPointer != nil {
+		c.JSON(http.StatusOK, *updatedToDoPointer)
+		return
+	}
+
+	if createdToDo, err := dao.PutToDo(todo); err == nil {
+		c.JSON(http.StatusCreated, createdToDo)
+	} else {
+		c.JSON(http.StatusInternalServerError, err)
+	}
+}

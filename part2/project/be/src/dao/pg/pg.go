@@ -4,6 +4,7 @@ import (
 	"antoine29/go/web-server/src/models"
 	"fmt"
 	"log"
+ 	"errors"
 
 	config "antoine29/go/web-server/src"
 	"github.com/google/uuid"
@@ -85,6 +86,24 @@ func AddToDo(content string) *models.ToDo {
 	}
 
 	result := conn.Create(&newToDo)
+	if result.Error != nil {
+		log.Println("Error creating todo")
+		log.Println(result.Error)
+		return nil
+	}
+
+	return &newToDo
+}
+
+func PutToDo(todo models.ToDo) (*models.ToDo, error) {
+	conn := getPGConn()
+	if conn == nil {
+		return nil, errors.New("error: Error getting pg connection")
+	}
+
+	defer closeDbConn(conn)
+
+	result := conn.Create(&todo)
 	if result.Error != nil {
 		log.Println("Error creating todo")
 		log.Println(result.Error)
