@@ -30,3 +30,12 @@ $ docker tag todos_be k3d-myregistry.localhost:12345/todos_be
 $ docker push k3d-myregistry.localhost:12345/todos_be
 ```
 
+## 3. Reload swagger api docs
+
+ToDo: include this as part of the docker image building
+
+
+```shell
+$ swag init
+```
+

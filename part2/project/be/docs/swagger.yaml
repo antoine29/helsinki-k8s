@@ -55,6 +55,23 @@ paths:
           schema:
             $ref: '#/definitions/models.ToDo'
       summary: Post ToDo
+    put:
+      description: Put (update or create) a ToDo
+      parameters:
+      - description: ToDo body
+        in: body
+        name: ToDo
+        required: true
+        schema:
+          $ref: '#/definitions/models.ToDo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ToDo'
+      summary: Put ToDo
   /todos/{id}:
     delete:
       description: Delete ToDo
