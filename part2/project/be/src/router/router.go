@@ -31,7 +31,7 @@ func SetupServer() *gin.Engine {
 		api.GET("/todos", controllers.GetTodos)
 		api.GET("/todos/:id", controllers.GetTodo)
 		api.POST("/todos", controllers.PostTodo)
-		api.PUT("/todos", controllers.PostTodo)
+		api.PUT("/todos/:id", controllers.PutTodo)
 		api.PATCH("/todos/:id", controllers.UpdateTodo)
 		api.DELETE("/todos/:id", controllers.DeleteTodo)
 		api.GET("/health", controllers.HealthCheck)
