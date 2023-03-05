@@ -3,16 +3,13 @@ package pg
 import (
 	"antoine29/go/web-server/src/models"
 	"fmt"
-	"log"
- 	"errors"
 
 	config "antoine29/go/web-server/src"
-	"github.com/google/uuid"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-func getPGConn() *gorm.DB {
+func getPGConn() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s search_path=%s sslmode=disable",
 		config.EnvVarsDict["PG_HOST"],
 		config.EnvVarsDict["PG_PORT"],
@@ -22,39 +19,38 @@ func getPGConn() *gorm.DB {
 		config.EnvVarsDict["PG_SCHEMA"],
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Println("Error connecting to PG DB")
-		log.Println(err)
-		return nil
+	var (
+		db  *gorm.DB
+		err error
+	)
+
+	if db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{}); err != nil {
+		return nil, err
 	}
 
-	return db
+	return db, nil
 }
 
-func GetToDo_s() []models.ToDo {
-	conn := getPGConn()
-	if conn == nil {
-		return nil
+func GetToDos() ([]models.ToDo, error) {
+	conn, err := getPGConn()
+	if err != nil {
+		return nil, err
 	}
 
 	defer closeDbConn(conn)
 
 	todos := []models.ToDo{}
-	result := conn.Find(&todos)
-	if result.Error != nil {
-		log.Println("Error getting pg todos")
-		log.Println(result.Error)
-		return nil
+	if result := conn.Find(&todos); result.Error != nil {
+		return nil, result.Error
 	}
 
-	return todos
+	return todos, nil
 }
 
-func GetToDo(id string) *models.ToDo {
-	conn := getPGConn()
-	if conn == nil {
-		return nil
+func GetToDo(id string) (*models.ToDo, error) {
+	conn, err := getPGConn()
+	if err != nil {
+		return nil, err
 	}
 
 	defer closeDbConn(conn)
@@ -62,109 +58,65 @@ func GetToDo(id string) *models.ToDo {
 	todo := models.ToDo{}
 	result := conn.First(&todo, "id = ?", id)
 	if result.Error != nil {
-		log.Println("Error getting todo")
-		log.Println(result.Error)
-		return nil
+		return nil, result.Error
 	}
 
-	return &todo
+	return &todo, nil
 }
 
-func AddToDo(content string) *models.ToDo {
-	conn := getPGConn()
-	if conn == nil {
-		return nil
-	}
-
-	defer closeDbConn(conn)
-
-	newId := uuid.New().String()
-	newToDo := models.ToDo{
-		Id:      newId,
-		Content: content,
-		IsDone:  false,
-	}
-
-	result := conn.Create(&newToDo)
-	if result.Error != nil {
-		log.Println("Error creating todo")
-		log.Println(result.Error)
-		return nil
-	}
-
-	return &newToDo
-}
-
-func PutToDo(todo models.ToDo) (*models.ToDo, error) {
-	conn := getPGConn()
-	if conn == nil {
-		return nil, errors.New("error: Error getting pg connection")
+func InsertToDo(todo models.ToDo) (*models.ToDo, error) {
+	conn, err := getPGConn()
+	if err != nil {
+		return nil, err
 	}
 
 	defer closeDbConn(conn)
 
 	result := conn.Create(&todo)
 	if result.Error != nil {
-		log.Println("Error creating todo")
-		log.Println(result.Error)
-		return nil
+		return nil, err
 	}
 
-	return &newToDo
+	return &todo, nil
 }
 
-func DeleteToDo(id string) *models.ToDo {
-	conn := getPGConn()
-	if conn == nil {
-		return nil
+func UpsertToDo(todo *models.ToDo) (*models.ToDo, error) {
+	conn, err := getPGConn()
+	if err != nil {
+		return nil, err
+	}
+
+	defer closeDbConn(conn)
+
+	if upsertResult := conn.Save(*todo); upsertResult.Error != nil {
+		return nil, upsertResult.Error
+	}
+
+	return todo, nil
+}
+
+func DeleteToDo(id string) (*models.ToDo, error) {
+	conn, err := getPGConn()
+	if err != nil {
+		return nil, err
 	}
 
 	defer closeDbConn(conn)
 
 	todo2delete := models.ToDo{Id: id}
-	result := conn.Delete(&todo2delete)
 	// fmt.Printf("%+v\n", result)
-	if result.RowsAffected == 0 {
-		log.Println("Error deleting todo")
-		return nil
+	if result := conn.Delete(&todo2delete); result.Error != nil {
+		return nil, result.Error
 	}
 
-	return &todo2delete
+	return &todo2delete, nil
 }
 
-func UpdateToDo(id string, todo models.ToDo) *models.ToDo {
-	conn := getPGConn()
-	if conn == nil {
-		return nil
-	}
-
-	defer closeDbConn(conn)
-
-	dbTodo := GetToDo(id)
-	if dbTodo == nil {
-		log.Printf("Todo with id: %s not found", id)
-		return nil
-	}
-
-	dbTodo.Content = todo.Content
-	dbTodo.IsDone = todo.IsDone
-
-	result := conn.Save(dbTodo)
-	// fmt.Printf("%+v\n", result)
-	if result.RowsAffected == 0 {
-		log.Println("Error updating todo")
-		return nil
-	}
-
-	return dbTodo
-}
-
-func IsDBHealthy() (bool, *string) {
+func IsDBHealthy() error {
 	config.LoadEnvVarsDict(true)
-	conn := getPGConn()
-	if conn == nil {
-		error := "Error connecting to DB"
-		return false, &error
+	conn, err := getPGConn()
+	if err != nil {
+		return err
 	}
 
 	defer closeDbConn(conn)
@@ -172,11 +124,10 @@ func IsDBHealthy() (bool, *string) {
 	var todo models.ToDo
 	result := conn.Take(&todo)
 	if result.Error == nil || result.Error.Error() == "record not found" {
-		return true, nil
+		return nil
 	}
 
-	errorStr := result.Error.Error()
-	return false, &errorStr
+	return result.Error
 }
 
 func closeDbConn(db *gorm.DB) {
