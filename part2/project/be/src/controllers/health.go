@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -15,12 +14,11 @@ import (
 // @Produce json
 // @Router /health [get]
 func HealthCheck(c *gin.Context) {
-	healthy, errorMessagePointer := pg.IsDBHealthy()
-	if healthy {
+	err := pg.IsDBHealthy()
+	if err == nil {
 		c.IndentedJSON(http.StatusOK, gin.H{"status": "Healthy"})
 		return
 	}
 
-	fmt.Println(errorMessagePointer)
-	c.IndentedJSON(http.StatusInternalServerError, gin.H{"status": errorMessagePointer})
+	c.IndentedJSON(http.StatusInternalServerError, gin.H{"status": err.Error()})
 }

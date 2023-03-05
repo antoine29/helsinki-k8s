@@ -17,6 +17,6 @@ func main() {
 
 	server := router.SetupServer()
 
-	fmt.Printf("Go to: 'http://localhost:%s/swagger/index.html' to check Swagger API docs.\n", port)
+	log.Printf("Go to: 'http://localhost:%s/swagger/index.html' to check Swagger API docs.\n", port)
 	server.Run(fmt.Sprintf(":%s", port))
 }
