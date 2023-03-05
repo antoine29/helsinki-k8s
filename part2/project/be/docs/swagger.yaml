@@ -55,23 +55,6 @@ paths:
           schema:
             $ref: '#/definitions/models.ToDo'
       summary: Post ToDo
-    put:
-      description: Put (update or create) a ToDo
-      parameters:
-      - description: ToDo body
-        in: body
-        name: ToDo
-        required: true
-        schema:
-          $ref: '#/definitions/models.ToDo'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ToDo'
-      summary: Put ToDo
   /todos/{id}:
     delete:
       description: Delete ToDo
@@ -127,4 +110,26 @@ paths:
           schema:
             $ref: '#/definitions/models.ToDo'
       summary: Update ToDo
+    put:
+      description: Put (update or create) a ToDo
+      parameters:
+      - description: Id of the ToDo to upsert
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: ToDo body
+        in: body
+        name: ToDo
+        required: true
+        schema:
+          $ref: '#/definitions/models.RawToDo'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ToDo'
+      summary: Put ToDo
 swagger: "2.0"

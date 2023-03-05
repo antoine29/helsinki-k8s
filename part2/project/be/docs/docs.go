@@ -45,32 +45,6 @@ const docTemplate = `{
                     }
                 }
             },
-            "put": {
-                "description": "Put (update or create) a ToDo",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Put ToDo",
-                "parameters": [
-                    {
-                        "description": "ToDo body",
-                        "name": "ToDo",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/models.ToDo"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.ToDo"
-                        }
-                    }
-                }
-            },
             "post": {
                 "description": "Post ToDo",
                 "produces": [
@@ -112,6 +86,39 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ToDo"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Put (update or create) a ToDo",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Put ToDo",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Id of the ToDo to upsert",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "ToDo body",
+                        "name": "ToDo",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.RawToDo"
+                        }
                     }
                 ],
                 "responses": {

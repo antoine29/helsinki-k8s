@@ -105,9 +105,10 @@ func UpdateTodo(c *gin.Context) {
 // @Schemes http
 // @Description Put (update or create) a ToDo
 // @Produce json
-// @Param	ToDo	body	models.ToDo	true	"ToDo body"
+// @Param	id	path string	true	"Id of the ToDo to upsert"
+// @Param	ToDo	body	models.RawToDo	true	"ToDo body"
 // @Success 200 {object} models.ToDo
-// @Router /todos [put]
+// @Router /todos/{id} [put]
 func PutTodo(c *gin.Context) {
 	var todo models.ToDo
 	if err := c.BindJSON(&todo); err != nil {
@@ -115,7 +116,8 @@ func PutTodo(c *gin.Context) {
 		return
 	}
 
-	if upsertedPointer, err := todoService.UpsertToDo(todo); err == nil {
+	id := c.Param("id")
+	if upsertedPointer, err := todoService.UpsertToDo(id, todo); err == nil {
 		c.JSON(http.StatusCreated, upsertedPointer)
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

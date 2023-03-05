@@ -72,12 +72,13 @@ func UpdateToDo(id string, todo models.ToDo) (*models.ToDo, error) {
 	return &updatedTodo, nil
 }
 
-func UpsertToDo(todo models.ToDo) (*models.ToDo, error) {
-	_, err := dao.GetToDo(todo.Id)
+func UpsertToDo(id string, todo models.ToDo) (*models.ToDo, error) {
+	_, err := dao.GetToDo(id)
 	if err != nil && err.Error() != "record not found" {
 		return nil, err
 	}
 
+	todo.Id = id
 	if err := isValidToDo(todo); err != nil {
 		return nil, err
 	}
