@@ -1,10 +1,9 @@
 package controllers
 
 import (
-	// dao "antoine29/go/web-server/src/dao/inMemory"
-	dao "antoine29/go/web-server/src/dao/pg"
 	"antoine29/go/web-server/src/models"
-	"log"
+	todoService "antoine29/go/web-server/src/services"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -17,8 +16,13 @@ import (
 // @Success 200 {array} models.ToDo
 // @Router /todos [get]
 func GetTodos(c *gin.Context) {
-	todos := dao.GetToDo_s()
-	c.IndentedJSON(http.StatusOK, todos)
+	if todos, err := todoService.GetToDos(); err != nil {
+		fmt.Printf("%v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	} else {
+		c.JSON(http.StatusOK, todos)
+	}
 }
 
 // @Summary Get ToDo by id
@@ -30,11 +34,10 @@ func GetTodos(c *gin.Context) {
 // @Router /todos/{id} [get]
 func GetTodo(c *gin.Context) {
 	id := c.Param("id")
-	todo := dao.GetToDo(id)
-	if todo == nil {
-		c.Status(http.StatusNotFound)
+	if todoPointer, err := todoService.GetToDo(id); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		c.IndentedJSON(http.StatusOK, *todo)
+		c.JSON(http.StatusOK, *todoPointer)
 	}
 }
 
@@ -48,25 +51,15 @@ func GetTodo(c *gin.Context) {
 func PostTodo(c *gin.Context) {
 	var newToDo models.ToDo
 	if err := c.BindJSON(&newToDo); err != nil {
-		c.IndentedJSON(http.StatusUnprocessableEntity, err)
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 
-	if newToDo.Content == "" {
-		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"error": "'content' field expected in the payload body"})
-		return
+	if createdToDo, err := todoService.CreateToDo(newToDo.Content); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	} else {
+		c.IndentedJSON(http.StatusCreated, createdToDo)
 	}
-
-	log.Println("Creating ToDo:", newToDo.Content)
-	if len(newToDo.Content) > 140 {
-		maxLengthError := "'content' field expected to be 140 chars at most"
-		log.Println("Error creating ToDo: ", newToDo.Content, maxLengthError)
-		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"error": maxLengthError})
-		return
-	}
-
-	createdToDo := dao.AddToDo(newToDo.Content)
-	c.IndentedJSON(http.StatusCreated, createdToDo)
 }
 
 // @Summary Delete ToDo
@@ -78,12 +71,10 @@ func PostTodo(c *gin.Context) {
 // @Router /todos/{id} [delete]
 func DeleteTodo(c *gin.Context) {
 	id := c.Param("id")
-	deletedToDoPointer := dao.DeleteToDo(id)
-
-	if deletedToDoPointer == nil {
-		c.Status(http.StatusNotFound)
+	if deletedResult, err := todoService.DeleteToDo(id); err != nil && deletedResult == false {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {
-		c.IndentedJSON(http.StatusOK, *deletedToDoPointer)
+		c.Status(http.StatusOK)
 	}
 }
 
@@ -99,16 +90,14 @@ func UpdateTodo(c *gin.Context) {
 	id := c.Param("id")
 	var updatedBody models.ToDo
 	if err := c.BindJSON(&updatedBody); err != nil {
-		c.IndentedJSON(http.StatusUnprocessableEntity, err)
+		c.IndentedJSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 
-	updatedToDoPointer := dao.UpdateToDo(id, updatedBody)
-
-	if updatedToDoPointer == nil {
-		c.Status(http.StatusNotFound)
+	if updatedToDoPointer, err := todoService.UpdateToDo(id, updatedBody); err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 	} else {
-		c.IndentedJSON(http.StatusOK, *updatedToDoPointer)
+		c.JSON(http.StatusOK, *updatedToDoPointer)
 	}
 }
 
@@ -116,25 +105,19 @@ func UpdateTodo(c *gin.Context) {
 // @Schemes http
 // @Description Put (update or create) a ToDo
 // @Produce json
-// @Param	ToDo	body	models.RawToDo	true	"ToDo updated body"
-// @Success 200 {object} models.ToDo // Todo: this coul have two ok respones (created and updated)
-// @Router /todos/{id} [put]
+// @Param	ToDo	body	models.ToDo	true	"ToDo body"
+// @Success 200 {object} models.ToDo
+// @Router /todos [put]
 func PutTodo(c *gin.Context) {
 	var todo models.ToDo
 	if err := c.BindJSON(&todo); err != nil {
-		c.JSON(http.StatusUnprocessableEntity, err)
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
 		return
 	}
 
-	id := todo.Id
-	if updatedToDoPointer := dao.UpdateToDo(id, todo); updatedToDoPointer != nil {
-		c.JSON(http.StatusOK, *updatedToDoPointer)
-		return
-	}
-
-	if createdToDo, err := dao.PutToDo(todo); err == nil {
-		c.JSON(http.StatusCreated, createdToDo)
+	if upsertedPointer, err := todoService.UpsertToDo(todo); err == nil {
+		c.JSON(http.StatusCreated, upsertedPointer)
 	} else {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
 }
