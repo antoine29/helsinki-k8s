@@ -1,8 +1,11 @@
 package services
 
 import (
+	config "antoine29/go/web-server/src"
 	"antoine29/go/web-server/src/models"
+	"encoding/json"
 	"errors"
+	"log"
 
 	dao "antoine29/go/web-server/src/dao/pg"
 
@@ -44,6 +47,10 @@ func CreateToDo(content string) (*models.ToDo, error) {
 		return nil, err
 	}
 
+	if err := sendTodoQueueMessage(createdToDoPointer, "created"); err != nil {
+		log.Println("Error sending created todo to publisher.", err.Error())
+	}
+
 	return createdToDoPointer, nil
 }
 
@@ -69,34 +76,29 @@ func UpdateToDo(id string, todo models.ToDo) (*models.ToDo, error) {
 		return nil, err
 	}
 
+	if err := sendTodoQueueMessage(&updatedTodo, "updated"); err != nil {
+		log.Println("Error sending updated todo to publisher.", err.Error())
+	}
+
 	return &updatedTodo, nil
 }
 
 func UpsertToDo(id string, todo models.ToDo) (*models.ToDo, error) {
-	_, err := dao.GetToDo(id)
-	if err != nil && err.Error() != "record not found" {
-		return nil, err
-	}
-
 	todo.Id = id
 	if err := isValidToDo(todo); err != nil {
 		return nil, err
 	}
 
-	if err != nil && err.Error() == "record not found" {
-		upsertedPointer, err := dao.UpsertToDo(&todo)
-		if err != nil {
-			return nil, err
-		} else {
-			return upsertedPointer, nil
-		}
-	}
-
-	updatedPointer, err := UpdateToDo(todo.Id, todo)
+	upsertedTodoPointer, err := dao.UpsertToDo(&todo)
 	if err != nil {
 		return nil, err
 	} else {
-		return updatedPointer, nil
+
+		if err := sendTodoQueueMessage(upsertedTodoPointer, "upserted"); err != nil {
+			log.Println("Error sending updated todo to publisher.", err.Error())
+		}
+
+		return upsertedTodoPointer, nil
 	}
 }
 
@@ -119,6 +121,29 @@ func isValidToDo(todo models.ToDo) error {
 
 	if len(todo.Content) > 140 {
 		return errors.New("'Content' field cannot exced 140 chars long.")
+	}
+
+	return nil
+}
+
+func sendTodoQueueMessage(todoPointer *models.ToDo, status string) error {
+	publisherUrl, isPublisherUrlEnvVarSet := config.EnvVarsDict["QUEUE_PUBLISHER_URL"]
+	if !isPublisherUrlEnvVarSet {
+		return errors.New("QUEUE_PUBLISHER_URL env var not set")
+	}
+
+	todoMessage := models.TodoMessage{
+		ToDo:   *todoPointer,
+		Status: status,
+	}
+
+	createdTodoJsonMessage, err := json.Marshal(todoMessage)
+	if err != nil {
+		return err
+	}
+
+	if err := HttpPost(publisherUrl, createdTodoJsonMessage); err != nil {
+		return err
 	}
 
 	return nil
