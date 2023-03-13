@@ -9,8 +9,8 @@ import (
 
 func main() {
 	config.LoadEnvVarsDict(false)
-	port := config.EnvVarsDict["GO_PORT"]
-	if port == "" {
+	port, portEnvVarIsSet := config.EnvVarsDict["GO_PORT"]
+	if portEnvVarIsSet {
 		log.Println("Warning: 'GO_PORT' environment variable was not set, using 8080 as default.")
 		port = "8080"
 	}

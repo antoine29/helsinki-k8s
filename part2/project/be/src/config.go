@@ -9,8 +9,7 @@ import (
 var EnvVarsDict map[string]string = make(map[string]string)
 
 func LoadEnvVarsDict(silentMode bool) {
-	envVarsDict, err := godotenv.Read()
-	if err == nil {
+	if envVarsDict, err := godotenv.Read(); err == nil {
 		// first: tries to load env vars from .env file
 		if !silentMode {
 			log.Print(".env file loaded")
