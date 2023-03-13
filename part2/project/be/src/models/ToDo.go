@@ -19,3 +19,8 @@ type Tabler interface {
 func (ToDo) TableName() string {
 	return "todos"
 }
+
+type TodoMessage struct {
+	ToDo   ToDo   `json:"todo"`
+	Status string `json:"status"`
+}
