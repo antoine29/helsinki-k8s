@@ -15,16 +15,16 @@ var natsSubject string = os.Getenv("SUBJECT")
 
 func publishController(res http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
-		WriteJsonResponse(res, http.StatusMethodNotAllowed, nil)
+		SendJsonResponse(res, http.StatusMethodNotAllowed, nil)
 		return
 	}
 
 	payload := req.Body
 	defer req.Body.Close()
 
-	var message models.Message
+	var message models.TodoMessage
 	if err := json.NewDecoder(payload).Decode(&message); err != nil {
-		WriteJsonResponse(res, http.StatusInternalServerError, BuildErrorResponse(err))
+		SendJsonResponse(res, http.StatusInternalServerError, BuildErrorResponse(err))
 		return
 	}
 
@@ -34,16 +34,17 @@ func publishController(res http.ResponseWriter, req *http.Request) {
 	)
 
 	if jmessage, err = json.Marshal(message); err != nil {
-		WriteJsonResponse(res, http.StatusInternalServerError, BuildErrorResponse(err))
+		SendJsonResponse(res, http.StatusInternalServerError, BuildErrorResponse(err))
 		return
 	}
 
 	if err = natsClient.Publish(natsSubject, jmessage); err != nil {
-		WriteJsonResponse(res, http.StatusInternalServerError, BuildErrorResponse(err))
+		SendJsonResponse(res, http.StatusInternalServerError, BuildErrorResponse(err))
 		return
 	}
 
-	WriteJsonResponse(res, http.StatusInternalServerError, jmessage)
+	SendJsonResponse(res, http.StatusOK, jmessage)
+	log.Println("Sent: ", string(jmessage))
 	return
 }
 
