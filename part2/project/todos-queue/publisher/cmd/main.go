@@ -16,12 +16,18 @@ func main() {
 	port := "8080"
 	if envVarPort, exists := os.LookupEnv("PORT"); exists {
 		port = envVarPort
-	}
+	} else {
+		log.Println("PORT env var not set")
+  }
+  
+	log.Printf("Listening on: %s \n", port)
 
-	if _, exists := os.LookupEnv("SUBJECT"); !exists {
-		log.Println("SUBJECT env var not set")
+	if natsSubject, exists := os.LookupEnv("NATS_SUBJECT"); !exists {
+		log.Println("NATS_SUBJECT env var not set")
 		return
-	}
+	} else {
+	  log.Printf("Publishing to: %s nats subject\n", natsSubject)
+  }
 
 	server.Run(port)
 }
