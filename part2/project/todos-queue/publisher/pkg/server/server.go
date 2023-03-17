@@ -9,6 +9,7 @@ import (
 
 	"github.com/antoine29/todos-queue-publisher/pkg/models"
 	"github.com/antoine29/todos-queue-publisher/pkg/natsClient"
+  _ "github.com/joho/godotenv/autoload"
 )
 
 var natsSubject string = os.Getenv("SUBJECT")
@@ -49,7 +50,6 @@ func publishController(res http.ResponseWriter, req *http.Request) {
 }
 
 func Run(port string) {
-	log.Printf("Listening on: %s \n", port)
 	http.HandleFunc("/api/publish", publishController)
 	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 }
