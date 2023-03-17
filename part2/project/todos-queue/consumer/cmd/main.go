@@ -13,8 +13,8 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	if subject, exists := os.LookupEnv("SUBJECT"); !exists {
-		log.Println("SUBJECT env var not set")
+	if subject, exists := os.LookupEnv("NATS_SUBJECT"); !exists {
+		log.Println("NATS_SUBJECT env var not set")
 		return
 	} else {
 		natsClient.Subscribe(subject)
