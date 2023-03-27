@@ -9,10 +9,11 @@ import (
 
 	"github.com/antoine29/todos-queue-publisher/pkg/models"
 	"github.com/antoine29/todos-queue-publisher/pkg/natsClient"
-  _ "github.com/joho/godotenv/autoload"
+	_ "github.com/joho/godotenv/autoload"
 )
 
-var natsSubject string = os.Getenv("SUBJECT")
+var NATS_URL = os.Getenv("NATS_URL")
+var NATS_SUBJECT = os.Getenv("NATS_SUBJECT")
 
 func publishController(res http.ResponseWriter, req *http.Request) {
 	if req.Method != "POST" {
@@ -39,7 +40,7 @@ func publishController(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	if err = natsClient.Publish(natsSubject, jmessage); err != nil {
+	if err = natsClient.Publish(NATS_URL, NATS_SUBJECT, jmessage); err != nil {
 		SendJsonResponse(res, http.StatusInternalServerError, BuildErrorResponse(err))
 		return
 	}
