@@ -25,6 +25,7 @@ func LoadEnvVarsDict(silentMode bool) {
 		EnvVarsDict["PG_DBNAME"] = os.Getenv("PG_DBNAME")
 		EnvVarsDict["PG_SCHEMA"] = os.Getenv("PG_SCHEMA")
 		EnvVarsDict["GO_PORT"] = os.Getenv("GO_PORT")
+		EnvVarsDict["QUEUE_PUBLISHER_URL"] = os.Getenv("QUEUE_PUBLISHER_URL")
 	}
 
 	alternativeEnvVarsDict, err := godotenv.Read("/config/.env")

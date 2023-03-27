@@ -13,10 +13,22 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	if subject, exists := os.LookupEnv("NATS_SUBJECT"); !exists {
-		log.Println("NATS_SUBJECT env var not set")
+	var (
+		natsSubject            string
+		isNatsSubjectEnvVarSet bool
+		natsUrl                string
+		isNatsUrlEnvVarSet     bool
+	)
+
+	if natsSubject, isNatsSubjectEnvVarSet = os.LookupEnv("NATS_SUBJECT"); !isNatsSubjectEnvVarSet {
+		log.Println("'NATS_SUBJECT' env var not set. Exiting.")
 		return
-	} else {
-		natsClient.Subscribe(subject)
 	}
+
+	if natsUrl, isNatsUrlEnvVarSet = os.LookupEnv("NATS_URL"); !isNatsUrlEnvVarSet {
+		log.Println("'NATS_URL' env var not set. Exiting.")
+		return
+	}
+
+	natsClient.Subscribe(natsUrl, natsSubject)
 }
