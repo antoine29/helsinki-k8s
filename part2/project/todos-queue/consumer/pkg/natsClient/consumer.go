@@ -21,7 +21,7 @@ func Subscribe(url string, subject string) {
 	}
 
 	natsChannel := make(chan *nats.Msg, 64)
-	nsub, err := nconn.ChanSubscribe(subject, natsChannel)
+	nsub, err := nconn.QueueSubscribeSyncWithChan(subject, "queue"+subject, natsChannel)
 	defer nsub.Unsubscribe()
 	if err != nil {
 		log.Printf("Error subscribing to nats subject: %s\n%s\n", subject, err.Error())
