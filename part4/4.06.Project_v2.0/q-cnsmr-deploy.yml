@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos-q-consumer
+  namespace: todos-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todos-q-consumer
+  template:
+    metadata:
+      labels:
+        app: todos-q-consumer
+    spec:
+      containers:
+        - name: todos-q-consumer
+          image: k3d-myregistry.localhost:12345/todos-q-consumer
+          env:
+          - name: NATS_SUBJECT
+            value: todos
+          - name: NATS_URL
+            value: nats://my-nats:4222
+          - name: TG_BOT_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: secrets
+                key: TG_BOT_TOKEN
+          - name: TG_CHANNEL_NAME
+            value: "@atodo9_channel"
+
