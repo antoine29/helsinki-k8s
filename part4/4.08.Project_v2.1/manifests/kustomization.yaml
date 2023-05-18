@@ -1,0 +1,38 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- ns.yaml
+- be-deploy.yaml
+- be-svc.yaml
+- fe-deploy.yaml
+- fe-svc.yaml
+- ing.yaml
+- nats-helm-rel.yaml
+- nats-helm-repo.yaml
+- pg-ss-svc.yaml
+- pg-ss.yaml
+- q-cnsmr-deploy.yaml
+- q-pub-deploy.yaml
+- q-pub-svc.yaml
+- rproxy-deploy.yaml
+- rproxy-svc.yaml
+- secrets.yaml
+images:
+- name: BE_DB_MIGRATIONS_IMAGE
+  newName: ghcr.io/antoine29/todos-be-db-migrations
+  newTag: 8b8753d
+- name: BE_IMAGE
+  newName: ghcr.io/antoine29/todos-be
+  newTag: 8b8753d
+- name: FE_IMAGE
+  newName: ghcr.io/antoine29/todos-fe
+  newTag: 8b8753d
+- name: Q_CNSMR_IMAGE
+  newName: ghcr.io/antoine29/todos-q-consumer
+  newTag: 8b8753d
+- name: Q_PUB_IMAGE
+  newName: ghcr.io/antoine29/todos-q-publisher
+  newTag: 8b8753d
+- name: RPROXY_IMAGE
+  newName: ghcr.io/antoine29/todos-rproxy
+  newTag: 8b8753d

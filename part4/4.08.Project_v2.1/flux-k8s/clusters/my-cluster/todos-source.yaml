@@ -1,0 +1,11 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: todos
+  namespace: flux-system
+spec:
+  interval: 1m
+  ref:
+    branch: part4
+  url: https://github.com/antoine29/helsinki-k8s
+

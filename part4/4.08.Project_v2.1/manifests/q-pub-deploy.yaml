@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos-q-publisher
+  namespace: todos-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todos-q-publisher
+  template:
+    metadata:
+      labels:
+        app: todos-q-publisher
+    spec:
+      containers:
+        - name: todos-q-publisher
+          image: Q_PUB_IMAGE
+          env:
+          - name: PORT
+            value: "8081"
+          - name: NATS_SUBJECT
+            value: todos
+          - name: NATS_URL
+            value: nats://my-nats:4222
+          
