@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos-be
+  namespace: todos-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todos-be
+  template:
+    metadata:
+      labels:
+        app: todos-be
+    spec:
+      initContainers:
+        - name: pg-readiness
+          image: postgres:14.3-alpine3.16
+          # todo: command params should come from env  
+          command: ["/bin/sh", "-c", "until pg_isready -h pg-ss-svc -p 5432 -d postgres; do echo waiting pg db at pg-ss-svc; sleep 5; done"]
+        - name: db-migrations
+          image: BE_DB_MIGRATIONS_IMAGE
+          env:
+          - name: PG_HOST
+            value: pg-ss-svc
+          - name: PG_PORT
+            value: "5432"
+          - name: PG_DBNAME
+            value: postgres
+          - name: PG_USERNAME
+            value: postgres
+          - name: PG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: secrets
+                key: PG_PASSWORD
+          - name: CHANGE_LOG
+            value: /db1/db1.changelog-master.xml
+      containers:
+        - name: todos-be
+          image: BE_IMAGE
+          env:
+          - name: GO_PORT
+            value: "8080"
+          - name: GIN_MODE
+            value: "release"
+          - name: PG_HOST
+            value: pg-ss-svc
+          - name: PG_PORT
+            value: "5432"
+          - name: PG_DBNAME
+            value: postgres
+          - name: PG_SCHEMA
+            value: todo
+          - name: PG_USER
+            value: postgres
+          - name: PG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: secrets
+                key: PG_PASSWORD
+          - name: QUEUE_PUBLISHER_URL
+            value: http://todos-q-publisher-svc/api/publish
+          
+          readinessProbe:
+            initialDelaySeconds: 5 # Initial delay until the readiness is tested
+            periodSeconds: 300 # How often to test
+            httpGet:
+               path: /api/health
+               port: 8080
+

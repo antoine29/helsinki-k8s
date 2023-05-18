@@ -1,0 +1,7 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: todos-ns
+  labels:
+    name: todos-ns  # could kustomization set this value? (dyamic ns)
+

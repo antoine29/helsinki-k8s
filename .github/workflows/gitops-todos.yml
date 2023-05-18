@@ -1,0 +1,104 @@
+name: Release 4.08 todos-app
+
+on:
+  push:
+    branches:
+      - part4-flux
+    paths:
+      - 'part2/project/**'
+      - '.github/workflows/gitops-todos.yml'
+
+jobs:
+  build-and-push:
+    name: Build-and-Push
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - image: ghcr.io/antoine29/todos-be
+            context: part2/project/be/
+            dockerfile: part2/project/be/Dockerfile
+          - image: ghcr.io/antoine29/todos-be-db-migrations
+            context: part2/project/be/dbMigrations/
+            dockerfile: part2/project/be/dbMigrations/Dockerfile
+          - image: ghcr.io/antoine29/todos-fe
+            context: part2/project/fe/
+            dockerfile: part2/project/fe/Dockerfile
+          - image: ghcr.io/antoine29/todos-rproxy
+            context: part2/project/rproxy/
+            dockerfile: part2/project/rproxy/Dockerfile
+          - image: ghcr.io/antoine29/todos-q-consumer
+            context: part2/project/todos-queue/
+            dockerfile: part2/project/todos-queue/consumer/Dockerfile
+          - image: ghcr.io/antoine29/todos-q-publisher
+            context: part2/project/todos-queue/publisher/
+            dockerfile: part2/project/todos-queue/publisher/Dockerfile
+    steps:
+    - uses: actions/checkout@v2
+ 
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Log in to GH CR
+      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+    
+    - name: Extract metadata (tags, labels) for Docker
+      id: metadata
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ matrix.image }}
+        tags: type=sha,prefix=
+
+    - name: Build and Push
+      uses: docker/build-push-action@v3
+      with:
+        context: ${{ matrix.context }}
+        file: ${{ matrix.dockerfile }}
+        platforms: linux/amd64
+        push: true
+        tags: ${{ steps.metadata.outputs.tags }}
+
+  update-manifests:
+    name: kustomize
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Get commit hash
+      id: commit
+      # run: echo "tag=$(git describe --tags HEAD)" > $GITHUB_ENV
+      run: |
+        COMMIT_SHA="${{ github.sha }}"
+        echo "commit_sha=${COMMIT_SHA}" >> $GITHUB_OUTPUT
+        echo "commit_sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+    # - name: Print commit sha
+    #   run: echo "Commit output ${{steps.commit.outputs.commit_sha_short}}"
+
+    # Set up kustomize
+    - name: Set up Kustomize
+      uses: imranismail/setup-kustomize@v1
+
+    - name: Update kustomization
+      working-directory: manifests
+      run: |-
+        kustomize edit set image BE_IMAGE=ghcr.io/antoine29/todos-be:${{ steps.commit.outputs.commit_sha_short }}
+        kustomize edit set image BE_DB_MIGRATIONS_IMAGE=ghcr.io/antoine29/todos-be-db-migrations:${{ steps.commit.outputs.commit_sha_short }}
+        kustomize edit set image FE_IMAGE=ghcr.io/antoine29/todos-fe:${{ steps.commit.outputs.commit_sha_short }}
+        kustomize edit set image Q_CNSMR_IMAGE=ghcr.io/antoine29/todos-q-consumer:${{ steps.commit.outputs.commit_sha_short }}
+        kustomize edit set image Q_PUB_IMAGE=ghcr.io/antoine29/todos-q-publisher:${{ steps.commit.outputs.commit_sha_short }}
+        kustomize edit set image RPROXY_IMAGE=ghcr.io/antoine29/todos-rproxy:${{ steps.commit.outputs.commit_sha_short }}
+
+    - name: Commit/push kustomization 
+      uses: EndBug/add-and-commit@v7
+      with:
+        add: 'manifests/kustomization.yaml'
+        message: New version release for gitops-app ${{ github.sha }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

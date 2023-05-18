@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos-fe
+  namespace: todos-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todos-fe
+  template:
+    metadata:
+      labels:
+        app: todos-fe
+    spec:
+      containers:
+        - name: todos-fe
+          image: FE_IMAGE
+

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: todos-q-publisher-svc
+  namespace: todos-ns
+spec:
+  type: ClusterIP
+  selector:
+    app: todos-q-publisher
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80
+      targetPort: 8081
