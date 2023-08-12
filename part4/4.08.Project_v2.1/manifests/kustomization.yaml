@@ -20,19 +20,19 @@ resources:
 images:
 - name: BE_DB_MIGRATIONS_IMAGE
   newName: ghcr.io/antoine29/todos-be-db-migrations
-  newTag: 8b8753d
+  newTag: fa9884a
 - name: BE_IMAGE
   newName: ghcr.io/antoine29/todos-be
-  newTag: 8b8753d
+  newTag: fa9884a
 - name: FE_IMAGE
   newName: ghcr.io/antoine29/todos-fe
-  newTag: 8b8753d
+  newTag: fa9884a
 - name: Q_CNSMR_IMAGE
   newName: ghcr.io/antoine29/todos-q-consumer
-  newTag: 8b8753d
+  newTag: fa9884a
 - name: Q_PUB_IMAGE
   newName: ghcr.io/antoine29/todos-q-publisher
-  newTag: 8b8753d
+  newTag: fa9884a
 - name: RPROXY_IMAGE
   newName: ghcr.io/antoine29/todos-rproxy
-  newTag: 8b8753d
+  newTag: fa9884a
