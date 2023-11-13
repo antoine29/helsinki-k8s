@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummysites-controller
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dummysites-controller
+  template:
+    metadata:
+      labels:
+        app: dummysites-controller
+    spec:
+      serviceAccountName: dummysites-controller-account
+      containers:
+        - name: dummysites-controller
+          image: k3d-myregistry.localhost:12345/dummysite-controller 
+

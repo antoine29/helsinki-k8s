@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: dummysite-svc
+  namespace: default
+spec:
+  #-- to be used along a ing
+  # type: ClusterIP
+  # selector:
+  #   app: dummysite-deployment
+  # ports:
+  #   - name: http
+  #     protocol: TCP
+  #     port: 80
+  #     targetPort: 8080
+  #-- exposing a node port directly
+  # if the node has a mapped port, we can use this port to expose the service
+  # when creating a k3d custer like this:
+  # $ k3d cluster create mycluster --port 8082:30080@agent:0 -p 8081:80@loadbalancer --agents 2 --registry-use k3d-myregistry.localhost:12345
+  # k3d cluster will have 2 agents/nodes, the node 0 will have a port at 30080 which will be mapped at 8082 host port
+  # then app should work on localhost:8082
+  type: NodePort
+  selector:
+    app:  dummysite-deployment
+  ports:
+    - name: http
+      nodePort: 30080 # This is the port that is available outside.
+      protocol: TCP
+      port: 1234 # This is a port that is available to the cluster, in this case it can be ~ anything
+      targetPort: 8080 # This is the target port (the container/app port)
+

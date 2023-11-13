@@ -1,0 +1,7 @@
+apiVersion: stable.anth/v1
+kind: DummySite
+metadata:
+  name: dummysite0
+spec:
+  url: https://example.com
+
