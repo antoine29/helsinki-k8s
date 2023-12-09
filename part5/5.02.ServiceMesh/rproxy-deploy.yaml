@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos-rproxy
+  namespace: todos-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todos-rproxy
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: todos-rproxy
+    spec:
+      containers:
+      - image: ghcr.io/antoine29/todos-rproxy:fa9884a
+        name: todos-rproxy
+

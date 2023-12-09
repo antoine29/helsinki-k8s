@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos-be
+  namespace: todos-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todos-be
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: todos-be
+    spec:
+      containers:
+      - env:
+        - name: GO_PORT
+          value: "8080"
+        - name: GIN_MODE
+          value: release
+        - name: PG_HOST
+          value: pg-ss-svc
+        - name: PG_PORT
+          value: "5432"
+        - name: PG_DBNAME
+          value: postgres
+        - name: PG_SCHEMA
+          value: todo
+        - name: PG_USER
+          value: postgres
+        - name: PG_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: PG_PASSWORD
+              name: secrets
+        - name: QUEUE_PUBLISHER_URL
+          value: http://todos-q-publisher-svc/api/publish
+        image: ghcr.io/antoine29/todos-be:fa9884a
+        name: todos-be
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 300
+      initContainers:
+      - command:
+        - /bin/sh
+        - -c
+        - until pg_isready -h pg-ss-svc -p 5432 -d postgres; do echo waiting pg db
+          at pg-ss-svc; sleep 5; done
+        image: postgres:14.3-alpine3.16
+        name: pg-readiness
+      - env:
+        - name: PG_HOST
+          value: pg-ss-svc
+        - name: PG_PORT
+          value: "5432"
+        - name: PG_DBNAME
+          value: postgres
+        - name: PG_USERNAME
+          value: postgres
+        - name: PG_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: PG_PASSWORD
+              name: secrets
+        - name: CHANGE_LOG
+          value: /db1/db1.changelog-master.xml
+        image: ghcr.io/antoine29/todos-be-db-migrations:fa9884a
+        name: pg-migrations
+

@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos-q-publisher
+  namespace: todos-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todos-q-publisher
+  template:
+    metadata:
+      annotations:
+        config.linkerd.io/skip-outbound-ports: "4222"
+        linkerd.io/inject: enabled
+      labels:
+        app: todos-q-publisher
+    spec:
+      containers:
+      - env:
+        - name: PORT
+          value: "8081"
+        - name: NATS_SUBJECT
+          value: todos
+        - name: NATS_URL
+          value: nats://my-nats:4222
+        image: ghcr.io/antoine29/todos-q-publisher:fa9884a
+        name: todos-q-publisher
+

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos-fe
+  namespace: todos-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todos-fe
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: todos-fe
+    spec:
+      containers:
+      - image: ghcr.io/antoine29/todos-fe:fa9884a
+        name: todos-fe
+

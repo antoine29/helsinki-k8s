@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todos-q-consumer
+  namespace: todos-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: todos-q-consumer
+  template:
+    metadata:
+      annotations:
+        # config.linkerd.io/opaque-ports: "4222"
+        config.linkerd.io/skip-outbound-ports: "4222"
+        linkerd.io/inject: enabled
+      labels:
+        app: todos-q-consumer
+    spec:
+      containers:
+      - env:
+        - name: NATS_SUBJECT
+          value: todos
+        - name: NATS_URL
+          value: nats://my-nats:4222
+        - name: TG_BOT_TOKEN
+          valueFrom:
+            secretKeyRef:
+              key: TG_BOT_TOKEN
+              name: secrets
+        - name: TG_CHANNEL_NAME
+          value: '@atodo9_channel'
+        image: ghcr.io/antoine29/todos-q-consumer:fa9884a
+        name: todos-q-consumer
+

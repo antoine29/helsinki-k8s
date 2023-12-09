@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pg-ss
+  namespace: todos-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pg-ss
+  serviceName: pg-ss-svc
+  template:
+    metadata:
+      annotations:
+        linkerd.io/inject: enabled
+      labels:
+        app: pg-ss
+    spec:
+      containers:
+      - env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: PG_PASSWORD
+              name: secrets
+        - name: PGDATA
+          value: /data/pgdata
+        image: postgres:14.3-alpine3.16
+        name: postgresql-db
+        ports:
+        - containerPort: 5432
+          name: pg-port
+        volumeMounts:
+        - mountPath: /data
+          name: postgresql-db-disk
+  volumeClaimTemplates:
+  - metadata:
+      name: postgresql-db-disk
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 512Mi
+      storageClassName: local-path
+
