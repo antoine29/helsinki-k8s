@@ -1,0 +1,12 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: ping-pong
+spec:
+  template:
+    metadata:
+      name: ping-pong-ksvc-v1
+    spec:
+      containers:
+        - image: ghcr.io/antoine29/ping-pong:latest
+

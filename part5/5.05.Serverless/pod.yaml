@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ping-pong
+spec:
+  containers:
+  - name: ping-pong
+    image: k3d-myregistry.localhost:12312/ping-pong
+
