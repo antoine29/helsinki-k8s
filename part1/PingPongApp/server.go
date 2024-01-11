@@ -15,6 +15,10 @@ func statusController(w http.ResponseWriter, req *http.Request) {
 }
 
 func healthController(w http.ResponseWriter, req *http.Request) {
+  if getRunMode() != "db" {
+    return
+  }
+
 	dbReadiness := DBreadiness()
 	if dbReadiness {
 		fmt.Fprintln(w, "DB is ready")

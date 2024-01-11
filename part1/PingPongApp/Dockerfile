@@ -12,3 +12,4 @@ WORKDIR /app
 COPY --from=builder /app/ping-pong /app
 
 ENTRYPOINT ["/app/ping-pong"]
+
