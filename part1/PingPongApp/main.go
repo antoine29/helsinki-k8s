@@ -37,3 +37,4 @@ func getRunMode() string {
 	fmt.Println("Running in db mode")
 	return "db"
 }
+

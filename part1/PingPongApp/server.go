@@ -17,6 +17,14 @@ func getCurrentStatus() string {
 
 func Server(port string, runMode string) {
 	http.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
+	  if req.URL.Path != "/" {
+      http.NotFound(w, req)
+    }
+    
+    w.WriteHeader(http.StatusOK)
+  })
+
+	http.HandleFunc("/pingpong", func(w http.ResponseWriter, req *http.Request) {
 		status := getCurrentStatus()
 		if runMode == "memory" {
 			WriteToFile(status)
@@ -33,3 +41,4 @@ func Server(port string, runMode string) {
 	fmt.Printf("Listening on: %s \n", port)
 	http.ListenAndServe(fmt.Sprintf(":%s", port), nil)
 }
+
