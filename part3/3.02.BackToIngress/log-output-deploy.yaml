@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: log-output-deploy
+  namespace: ping-pong-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: log-output-deploy
+  template:
+    metadata:
+      labels:
+        app: log-output-deploy
+    spec:
+      containers:
+        - name: log-output
+          image: ghcr.io/antoine29/log-output
+          args: ["-serverPort 80", "-strLength 5", "-secsInterval 5"]
+

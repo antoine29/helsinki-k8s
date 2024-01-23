@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ping-pong-deploy
+  namespace: ping-pong-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ping-pong-deploy
+  template:
+    metadata:
+      labels:
+        app: ping-pong-deploy
+    spec:
+      initContainers:
+        - name: pg-readiness
+          image: postgres:14.3-alpine3.16
+          # todo: command params should come from env  
+          command: ["/bin/sh", "-c", "until pg_isready -h pg-ss-svc -p 5432 -d postgres; do echo waiting pg db at pg-ss-svc; sleep 5; done"]
+        - name: pg-migrations
+          image: ghcr.io/antoine29/ping-pong-db-migrations:latest
+          env:
+          - name: PG_HOST
+            value: pg-ss-svc
+          - name: PG_PORT
+            value: "5432"
+          - name: PG_DBNAME
+            value: postgres
+          - name: PG_USERNAME
+            value: postgres
+          - name: PG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: secrets
+                key: PG_PASSWORD
+          - name: CHANGE_LOG
+            value: /db1/db1.changelog-master.xml
+
+      containers:
+        - name: ping-pong
+          image: ghcr.io/antoine29/ping-pong:latest
+          env:
+          - name: GO_PORT
+            value: "8080"
+          - name: GO_RUNMODE
+            value: db
+          - name: PG_HOST
+            value: pg-ss-svc
+          - name: PG_PORT
+            value: "5432"
+          - name: PG_DBNAME
+            value: postgres
+          - name: PG_USER
+            value: postgres
+          - name: PG_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: secrets
+                key: PG_PASSWORD
+          - name: PG_SCHEMA
+            value: pingpong
+          - name: PG_TABLE
+            value: counts
+

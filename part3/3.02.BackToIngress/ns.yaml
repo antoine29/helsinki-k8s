@@ -1,0 +1,7 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: ping-pong-ns
+  labels:
+    name: ping-pong-ns
+
