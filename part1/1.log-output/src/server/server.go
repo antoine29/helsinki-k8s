@@ -23,7 +23,17 @@ func inFileStatusEndpoint(w http.ResponseWriter, req *http.Request) {
 	fmt.Fprintln(w, currentStatus)
 }
 
+func okStatusEndpoint(w http.ResponseWriter, req *http.Request) {
+	if req.URL.Path != "/" {
+    http.NotFound(w, req)
+  }
+
+	w.WriteHeader(200)
+  return 
+}
+
 func Server(port string, programParams map[string]string) {
+	http.HandleFunc("/", okStatusEndpoint)
 	http.HandleFunc("/status/memory", inMemoStatusEndpoint)
 	http.HandleFunc("/status/file", inFileStatusEndpoint)
 	if helpers.IsParamPassed("url", programParams) {

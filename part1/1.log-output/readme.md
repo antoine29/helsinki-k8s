@@ -1,4 +1,4 @@
-# Running the temporised random string project as k3d deployment with a local k3d registry
+# Temporised random string project   
 The program can run in two modes:
 
 - reader: exposes a port to query the status\
@@ -51,3 +51,4 @@ $ kubectl create deployment log-output --image=k3d-myregistry.localhost:12345/lo
 
 ToDo: we're passing the '/app/exe 5' param to override the entire image entrypoint and cmd, in the CLI mode of `create deployment there is no way to pass a cmd without a entrypoint`
 https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands#-em-deployment-em-
+
