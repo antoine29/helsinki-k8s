@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - be-deploy.yaml
+  - fe-deploy.yaml
+  - rproxy-deploy.yaml
+images:
+  - name: BE_IMAGE
+    newName: BE_IMAGE
+  - name: BE_DB_MIGRATIONS_IMAGE
+    newName: BE_DB_MIGRATIONS_IMAGE
+  - name: FE_IMAGE
+    newName: FE_IMAGE
+  - name: RPROXY_IMAGE
+    newName: RPROXY_IMAGE
+

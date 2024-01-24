@@ -1,0 +1,89 @@
+# builds and deploys only the frontend image. Useful for when ingress ip changes
+name: GKE FE deploy
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    name: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+ 
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+    
+    - run: gcloud --quiet auth configure-docker
+    
+    - name: gcp service account auth
+      id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GKE_SA_KEY }}'
+
+    - name: Builds metadata (tags, labels) for Docker images
+      id: metadata
+      uses: docker/metadata-action@v4
+      with:
+        images: gcr.io/${{ vars.GCP_PROJECT_ID }}/todos-fe
+        tags: type=sha,prefix=
+
+    - name: Build and Push
+      uses: docker/build-push-action@v3
+      with:
+        context: part2/project/fe/
+        file: part2/project/fe/Dockerfile
+        build-args: |
+          "VITE_API_URL=${{ vars.API_URL }}"
+        platforms: linux/amd64
+        push: true
+        tags: ${{ steps.metadata.outputs.tags }}
+
+  kustomize-and-apply:
+    name: kustomize-and-apply
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v2'
+
+    - run: gcloud components install kubectl
+    
+    - name: gcp service account auth
+      id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GKE_SA_KEY }}'
+
+    - run: gcloud container clusters get-credentials ${{ vars.GKE_CLUSTER }} --zone ${{ vars.GCP_ZONE }}
+    
+    - name: Get short commit hash
+      id: commit-info
+      run: |
+        COMMIT_SHA="${{ github.sha }}"
+        echo "commit_sha=${COMMIT_SHA}" >> $GITHUB_OUTPUT
+        echo "commit_sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+    - name: Set up Kustomize
+      uses: imranismail/setup-kustomize@v1
+
+    - name: Update kustomization
+      working-directory: part3/3.03.Project_v1.4
+      run: |-
+        curl -L https://github.com/ryane/kfilt/releases/download/v0.0.8/kfilt_0.0.8_linux_amd64 > kfilt && chmod +x kfilt
+        kubectl apply -f ns.yaml
+        kubectl config set-context --current --namespace=todos-ns
+        kubectl delete deployment todos-fe
+        kustomize edit set image FE_IMAGE=gcr.io/${{ vars.GCP_PROJECT_ID }}/todos-fe:${{ steps.commit-info.outputs.commit_sha_short }}
+        kustomize build . | ./kfilt -n todos-fe | kubectl apply -f -
+        kubectl rollout status deployment todos-fe
+
