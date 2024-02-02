@@ -4,12 +4,10 @@ name: GKE full deploy
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
     paths:
       - 'part2/project/**'
       - '.github/workflows/gke-full-deploy.yaml'
-      - 'part3/3.03.Project_v1.4/**'
+      - 'part3/3.04.Project_v1.4.1/**'
 
 jobs:
   build-and-push:
@@ -34,7 +32,7 @@ jobs:
             dockerfile: part2/project/rproxy/dockerfile
     steps:
     - uses: actions/checkout@v2
- 
+
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
 
@@ -101,26 +99,38 @@ jobs:
     # - name: Print commit sha
     #   run: echo "Commit output ${{steps.commit.outputs.commit_sha_short}}"
 
+    - name: Get K8S namespace name
+      id: k8s-ns-name
+      run: |
+        BRANCH_NAME="${{ github.ref_name }}"
+        echo "branch name: $BRANCH_NAME"
+        if [ "$BRANCH_NAME" == "main" ]; then
+          echo "ns=todos-ns" >> $GITHUB_OUTPUT
+        else
+          echo "ns=todos-"$BRANCH_NAME"-ns" >> $GITHUB_OUTPUT
+        fi
+
     - name: Set up Kustomize
       uses: imranismail/setup-kustomize@v1
 
     - name: Update kustomization
-      working-directory: part3/3.03.Project_v1.4
+      working-directory: part3/3.04.Project_v1.4.1
       run: |-
-        kubectl apply -f ns.yaml
-        kubectl config set-context --current --namespace=todos-ns
-        kubectl apply -f secret.yaml 
-        kubectl apply -f pg-ss.yaml
-        kubectl apply -f pg-ss-svc.yaml
-        kubectl apply -f be-svc.yaml 
-        kubectl apply -f fe-svc.yaml 
-        kubectl apply -f rproxy-svc.yaml 
-        kubectl apply -f ing.yaml 
+        echo "using k8s ns: ${{ steps.k8s-ns-name.outputs.ns }}"
+        if kubectl get ns | grep -q ${{ steps.k8s-ns-name.outputs.ns }}; then
+          echo "ns already created"
+        else 
+          kubectl create namespace ${{ steps.k8s-ns-name.outputs.ns }};
+        fi
+        kubectl config set-context --current --namespace=${{ steps.k8s-ns-name.outputs.ns }}
+        kustomize edit set namespace ${{ steps.k8s-ns-name.outputs.ns }}
         kustomize edit set image BE_IMAGE=gcr.io/${{ vars.GCP_PROJECT_ID }}/todos-be:${{ steps.commit-info.outputs.commit_sha_short }}
         kustomize edit set image BE_DB_MIGRATIONS_IMAGE=gcr.io/${{ vars.GCP_PROJECT_ID }}/todos-be-db-migrations:${{ steps.commit-info.outputs.commit_sha_short }}
         kustomize edit set image FE_IMAGE=gcr.io/${{ vars.GCP_PROJECT_ID }}/todos-fe:${{ steps.commit-info.outputs.commit_sha_short }}
         kustomize edit set image RPROXY_IMAGE=gcr.io/${{ vars.GCP_PROJECT_ID }}/todos-rproxy:${{ steps.commit-info.outputs.commit_sha_short }}
-        kustomize build . | kubectl apply -f -
+        kubectl apply -k . 
+        # kustomize build . -o kustomized
+        # cat kustomized
         kubectl rollout status deployment todos-be
         kubectl rollout status deployment todos-fe
         kubectl rollout status deployment todos-rproxy
