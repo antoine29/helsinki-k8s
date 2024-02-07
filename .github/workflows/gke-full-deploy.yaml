@@ -7,7 +7,7 @@ on:
     paths:
       - 'part2/project/**'
       - '.github/workflows/gke-full-deploy.yaml'
-      - 'part3/3.04.Project_v1.4.1/**'
+      - 'part3/3.07.DbCommitment/**'
 
 jobs:
   build-and-push:
@@ -114,7 +114,7 @@ jobs:
       uses: imranismail/setup-kustomize@v1
 
     - name: Update kustomization
-      working-directory: part3/3.04.Project_v1.4.1
+      working-directory: part3/3.07.DbCommitment
       run: |-
         echo "using k8s ns: ${{ steps.k8s-ns-name.outputs.ns }}"
         if kubectl get ns | grep -q ${{ steps.k8s-ns-name.outputs.ns }}; then
