@@ -25,6 +25,7 @@ func SetupServer() *gin.Engine {
 
 	r.GET("/image/:name", controllers.GetImage)
 	r.GET("/swagger/*any", setupSwagger())
+	r.GET("/memo", controllers.MemoUsage)
 
 	api := r.Group("/api")
 	{
@@ -39,3 +40,4 @@ func SetupServer() *gin.Engine {
 
 	return r
 }
+

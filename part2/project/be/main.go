@@ -31,3 +31,4 @@ func TryToReadEnvFiles() {
 
 	fmt.Println("Couldm't find .env file")
 }
+
