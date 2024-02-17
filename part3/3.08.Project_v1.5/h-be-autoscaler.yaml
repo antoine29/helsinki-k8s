@@ -1,0 +1,13 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: todos-be-hpa
+  namespace: todos-ns
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: todos-be
+  minReplicas: 1
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 50
