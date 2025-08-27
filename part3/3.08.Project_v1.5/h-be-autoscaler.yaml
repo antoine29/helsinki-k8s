@@ -1,4 +1,4 @@
-apiVersion: autoscaling/v1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: todos-be-hpa
@@ -9,5 +9,15 @@ spec:
     kind: Deployment
     name: todos-be
   minReplicas: 1
-  maxReplicas: 6
-  targetCPUUtilizationPercentage: 50
+  maxReplicas: 3
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: AverageValue
+        averageValue: "250Mi"
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 60
+

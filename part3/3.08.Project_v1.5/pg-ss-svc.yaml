@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pg-ss-svc
+  namespace: todos-ns
+spec:
+  clusterIP: None
+  selector:
+    app: pg-ss
+  ports:
+  - name: pg-ss-svc-port
+    protocol: TCP
+    port: 5432
+    targetPort: 5432
+

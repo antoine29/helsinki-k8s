@@ -16,12 +16,12 @@ spec:
       initContainers:
         - name: pg-readiness
           image: postgres:14.3-alpine3.16
-          command: ["/bin/sh", "-c", "until pg_isready -h 10.126.160.3 -p 5432 -d postgres; do echo waiting pg db at pg-ss-svc; sleep 5; done"]
+          command: ["/bin/sh", "-c", "until pg_isready -h pg-ss-svc -p 5432 -d postgres; do echo waiting pg db at pg-ss-svc; sleep 5; done"]
         - name: pg-migrations
           image: BE_DB_MIGRATIONS_IMAGE
           env:
           - name: PG_HOST # ToDo: can this value be set from kustomize? then from gh actions?  
-            value: 10.126.160.3
+            value: pg-ss-svc
           - name: PG_PORT
             value: "5432"
           - name: PG_DBNAME
@@ -44,7 +44,7 @@ spec:
           - name: GIN_MODE
             value: "release"
           - name: PG_HOST
-            value: 10.126.160.3
+            value: pg-ss-svc
           - name: PG_PORT
             value: "5432"
           - name: PG_DBNAME
@@ -58,4 +58,9 @@ spec:
               secretKeyRef:
                 name: secrets
                 key: PG_PASSWORD
+          resources:
+            limits:
+              memory: "300Mi"
+            requests:
+              memory: "10Mi"
 

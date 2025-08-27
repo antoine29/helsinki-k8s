@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: pg-ss
+  namespace: todos-ns
+spec:
+  serviceName: pg-ss-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pg-ss
+  template:
+    metadata:
+      labels:
+        app: pg-ss
+    spec:
+      containers:
+        - name: postgresql-db
+          image: postgres:14.3-alpine3.16
+          ports:
+            - name: pg-ss-port
+              containerPort: 5432
+          volumeMounts:
+            - name: postgresql-db-disk
+              mountPath: /data
+          env:
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: secrets
+                key: PG_PASSWORD
+          - name: PGDATA
+            value: /data/pgdata
+
+  # Volume Claim
+  volumeClaimTemplates:
+    - metadata:
+        name: postgresql-db-disk
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 512Mi
